@@ -1201,7 +1201,6 @@
       }
       .calendar-heading strong {
         font-size: 17px;
-        text-transform: capitalize;
       }
       .calendar-grid {
         display: grid;
@@ -2091,6 +2090,900 @@
           padding-bottom: 8px;
         }
       }
+
+      /* ==========================================================================
+         VESSEL 2.0 · Sistema de diseño
+         Capa añadida sobre la iteración 04: mismos colores base, más profundidad y
+         estados de interacción coherentes. Elementos interactivos = superficies
+         elevadas; información = superficies planas o hundidas.
+         ========================================================================== */
+      :root {
+        /* Espaciado (4 px) y radios */
+        --s1: 4px;
+        --s2: 8px;
+        --s3: 12px;
+        --s4: 16px;
+        --s5: 20px;
+        --s6: 24px;
+        --r-sm: 10px;
+        --r-md: 13px;
+        --r-lg: 17px;
+        --r-xl: 24px;
+        /* Superficies satinadas */
+        --surface-top: #303335;
+        --surface-bottom: #2a2d2e;
+        --surface-grad: linear-gradient(160deg, var(--surface-top), var(--surface-bottom));
+        --edge-light: #ffffff12;
+        --edge-dark: #0000002e;
+        /* Elevaciones (neomorfismo sutil, luz desde arriba a la izquierda) */
+        --elev-raised: inset 0 1px 0 #ffffff10, -3px -3px 9px #ffffff06, 6px 8px 18px #00000045, 0 1px 2px #00000040;
+        --elev-raised-hover: inset 0 1px 0 #ffffff16, -4px -4px 11px #ffffff08, 8px 11px 22px #0000004d, 0 1px 2px #00000040;
+        --elev-pressed: inset 3px 3px 7px #00000055, inset -2px -2px 6px #ffffff08;
+        --elev-sunken: inset 2px 2px 5px #0000004a, inset -1px -1px 2px #ffffff0a;
+        --elev-flat: inset 0 1px 0 #ffffff0b, 0 1px 2px #00000030;
+        /* Colores de estado: discretos, solo en puntos y etiquetas pequeñas */
+        --ok: #93c4a2;
+        --warn: #dcb468;
+        --alert: #e3998b;
+        --info: #a3b8cc;
+        /* Movimiento */
+        --dur-press: 100ms;
+        --dur-fast: 160ms;
+        --dur-med: 220ms;
+        --dur-sheet: 260ms;
+        --ease-out: cubic-bezier(0.22, 0.8, 0.24, 1);
+        --ease-in: cubic-bezier(0.4, 0, 1, 1);
+      }
+      body {
+        font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      }
+
+      /* --- Superficies ------------------------------------------------------- */
+      .panel {
+        background: var(--surface-grad);
+        border: 1px solid #ffffff09;
+        border-top-color: var(--edge-light);
+        box-shadow: var(--elev-raised);
+      }
+      /* Paneles informativos: más planos que los pulsables. */
+      .detail-panel,
+      .profile-card,
+      .profile-summary,
+      .profile-shifts,
+      .notice-form,
+      .wallet-total {
+        box-shadow: var(--elev-flat);
+        background: linear-gradient(160deg, #2e3132, #2a2c2d);
+      }
+      .summary-strip {
+        background: var(--well);
+        border-color: #00000030;
+        border-bottom-color: #ffffff0d;
+        box-shadow: var(--elev-sunken);
+      }
+      .search input,
+      .field,
+      input[type="time"],
+      input[type="date"],
+      input[type="number"],
+      input[type="text"],
+      input[type="url"],
+      select,
+      textarea {
+        background: var(--well);
+        border-color: #00000038;
+        border-bottom-color: #ffffff10;
+        box-shadow: var(--elev-sunken);
+        transition:
+          border-color var(--dur-fast),
+          box-shadow var(--dur-fast);
+      }
+      .search input:focus,
+      input:focus,
+      select:focus,
+      textarea:focus {
+        border-color: #7d8587;
+      }
+      .time-chip {
+        background: var(--well);
+        border-color: #00000040;
+        border-bottom-color: #ffffff0d;
+        box-shadow: var(--elev-sunken);
+        display: inline-flex;
+        align-items: flex-start;
+        gap: 2px;
+      }
+      .next-day {
+        font-size: 9px;
+        font-weight: 600;
+        color: var(--muted);
+        letter-spacing: 0;
+        line-height: 1;
+        margin-top: -1px;
+      }
+      .day-chip {
+        box-shadow:
+          inset 0 1px 0 #ffffffb0,
+          0 2px 4px #00000040;
+      }
+      .day-chip.off {
+        box-shadow: var(--elev-sunken);
+      }
+      .badge,
+      .tag {
+        box-shadow: var(--elev-sunken);
+      }
+
+      /* --- Estados de interacción ------------------------------------------- */
+      button,
+      .panel {
+        transition:
+          transform var(--dur-press) var(--ease-out),
+          box-shadow var(--dur-fast) var(--ease-out),
+          background-color var(--dur-fast),
+          border-color var(--dur-fast),
+          color var(--dur-fast),
+          opacity var(--dur-fast);
+      }
+      @media (hover: hover) {
+        button.panel:hover,
+        .shift-card:not(.compact-edit):hover {
+          box-shadow: var(--elev-raised-hover);
+          background: linear-gradient(160deg, #333638, #2c2f30);
+        }
+      }
+      button.panel:active:not(:disabled),
+      .compact-edit:has(.shift-main:active) {
+        transform: scale(0.985);
+        box-shadow: var(--elev-pressed);
+      }
+      .pill,
+      .secondary {
+        background: linear-gradient(160deg, #2c2f30, #262829);
+        border-color: #4a4f51;
+        box-shadow:
+          inset 0 1px 0 #ffffff0d,
+          0 2px 5px #00000035;
+      }
+      .pill:active:not(:disabled),
+      .secondary:active:not(:disabled),
+      .icon-button:active:not(:disabled),
+      .text-button:active:not(:disabled) {
+        transform: scale(0.96);
+        box-shadow: var(--elev-pressed);
+      }
+      .primary {
+        background: linear-gradient(180deg, #f5f4f1, #e2e1dd);
+        box-shadow:
+          inset 0 1px 0 #fff,
+          0 4px 10px #00000040,
+          0 1px 2px #0000004d;
+      }
+      .primary:active:not(:disabled) {
+        transform: scale(0.97);
+        box-shadow:
+          inset 0 2px 4px #00000026,
+          0 1px 2px #0000004d;
+      }
+      .pill-primary {
+        background: linear-gradient(180deg, #f5f4f1, #e2e1dd);
+        color: #151718;
+        border-color: #f3f2ef;
+        font-weight: 600;
+      }
+      .pill-primary:hover {
+        background: #fff;
+      }
+      .pill.selected,
+      .period-presets .selected {
+        box-shadow: inset 0 1px 0 #fff;
+      }
+      .text-button {
+        font-size: 12px;
+        color: var(--ink);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+        text-decoration-color: #ffffff55;
+        padding: 6px 2px;
+        border-radius: 6px;
+      }
+      .small-button {
+        min-height: 36px;
+        padding: 7px 12px;
+        font-size: 12px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+      }
+      .small-button svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      /* --- Navegación inferior --------------------------------------------- */
+      .bottom-nav {
+        background: linear-gradient(180deg, #1f2122, #1b1d1e);
+        border-top-color: #34383a;
+        box-shadow: 0 -10px 24px #00000026;
+      }
+      .nav-item.active:before {
+        content: none;
+      }
+      .nav-item svg {
+        transition: transform var(--dur-med) var(--ease-out);
+      }
+      .nav-item.active svg {
+        transform: translateY(-1px);
+      }
+      .nav-item:active svg {
+        transform: scale(0.9);
+      }
+      .nav-indicator {
+        position: absolute;
+        top: -1px;
+        left: 0;
+        width: 34px;
+        height: 2px;
+        border-radius: 4px;
+        background: var(--ink);
+        box-shadow: 0 1px 8px #ffffff40;
+        transition: transform var(--dur-med) var(--ease-out);
+        pointer-events: none;
+      }
+
+      /* --- Inicio ----------------------------------------------------------- */
+      .metric-suffix {
+        font-size: 0.75em;
+      }
+      .notice-message {
+        display: block;
+      }
+      .notice-meta {
+        gap: 8px;
+        font-size: 11px;
+        flex-wrap: wrap;
+      }
+      .notice-card.is-resolved {
+        opacity: 0.72;
+      }
+      .status {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        color: var(--ink);
+        font-weight: 600;
+      }
+      .status i {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--muted);
+      }
+      .status.pending i {
+        background: var(--warn);
+        box-shadow: 0 0 0 3px #dcb4681f;
+      }
+      .status.reviewed i {
+        background: var(--info);
+      }
+      .status.resolved i {
+        background: var(--ok);
+      }
+      .sheet .status {
+        border: 1px solid #5c6466;
+        border-radius: 20px;
+        padding: 4px 10px;
+        font-size: 11px;
+      }
+      .conflict-banner {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-top: 12px;
+        padding: 11px 14px;
+        text-align: left;
+        border-radius: var(--r-md);
+        border: 1px solid #dcb46838;
+        background: linear-gradient(160deg, #35322a, #2d2c28);
+        box-shadow: var(--elev-raised);
+      }
+      .conflict-banner > svg:first-child {
+        width: 20px;
+        height: 20px;
+        color: var(--warn);
+      }
+      .conflict-banner span {
+        flex: 1;
+        min-width: 0;
+        display: grid;
+        gap: 1px;
+      }
+      .conflict-banner strong {
+        font-size: 14px;
+      }
+      .conflict-banner small {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .conflict-banner:active {
+        transform: scale(0.985);
+        box-shadow: var(--elev-pressed);
+      }
+      .empty-line {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        padding: 18px 10px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .empty-line svg {
+        width: 16px;
+        height: 16px;
+        color: var(--ok);
+      }
+      .page-home > .text-button {
+        display: block;
+        margin: 10px auto 0;
+        color: var(--muted);
+      }
+
+      /* --- Horarios --------------------------------------------------------- */
+      .date-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-bottom: 16px;
+      }
+      .date-row .date-control {
+        margin-bottom: 0;
+      }
+      .date-step {
+        width: 36px;
+        height: 36px;
+        flex: none;
+      }
+      .date-step svg {
+        width: 17px;
+        height: 17px;
+      }
+      .today-link {
+        margin-left: auto;
+      }
+      .shift-person strong + .conflict-dot {
+        margin-left: 6px;
+      }
+      .conflict-dot {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--warn);
+        box-shadow: 0 0 0 3px #dcb46826;
+        vertical-align: 2px;
+      }
+      .compact-edit .person-sub {
+        display: block;
+      }
+      .draft-bar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin: -5px 0 11px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .draft-state {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+      }
+      .draft-state i {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--warn);
+        animation: draft-pulse 2.4s ease-in-out infinite;
+      }
+      @keyframes draft-pulse {
+        50% {
+          opacity: 0.35;
+        }
+      }
+      .draft-actions {
+        display: grid;
+        gap: 0;
+      }
+      .draft-actions .add-button + .add-button {
+        margin-top: 10px;
+      }
+      .empty-actions {
+        display: grid;
+        gap: 10px;
+        justify-items: center;
+      }
+      .empty-actions .secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+      }
+      .empty-actions svg {
+        width: 16px;
+        height: 16px;
+        margin: 0;
+        color: inherit;
+      }
+      .history-link {
+        width: 100%;
+        margin-top: 14px;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 9px 4px;
+        font-size: 12px;
+        color: var(--muted);
+        text-align: left;
+        border-top: 1px solid #ffffff0d;
+        border-radius: 0;
+      }
+      .history-link span {
+        flex: 1;
+      }
+      .history-link svg:first-child {
+        width: 16px;
+        height: 16px;
+      }
+      .history-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: grid;
+        gap: 14px;
+      }
+      .history-list ul {
+        list-style: none;
+        margin: 6px 0 0;
+        padding: 0;
+        display: grid;
+        gap: 6px;
+      }
+      .history-when {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .change {
+        display: grid;
+        grid-template-columns: 74px 1fr auto;
+        gap: 8px;
+        align-items: center;
+        font-size: 13px;
+        padding: 8px 10px;
+        border-radius: var(--r-sm);
+        background: var(--well);
+        box-shadow: var(--elev-sunken);
+      }
+      .change-kind {
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .change.add .change-kind {
+        color: var(--ok);
+      }
+      .change.remove .change-kind {
+        color: var(--alert);
+      }
+      .change.edit .change-kind {
+        color: var(--info);
+      }
+      .change-time {
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+
+      /* --- Equipo y ficha --------------------------------------------------- */
+      .employee-row .person-sub,
+      .employee-pick-sub {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .next-shift {
+        color: #c4cacc;
+      }
+      .employee-pick-sub.has-warning {
+        color: #e6cf9f;
+      }
+      .employee-row.is-inactive {
+        opacity: 0.65;
+      }
+      .line-button {
+        width: 100%;
+        text-align: left;
+        color: inherit;
+        border-radius: 8px;
+      }
+      .line-button > span:first-child {
+        color: var(--ink) !important;
+      }
+      .line-button:active {
+        transform: scale(0.99);
+      }
+      @media (hover: hover) {
+        .line-button:hover {
+          background: #ffffff06;
+        }
+      }
+      .line-button .time-chip {
+        font-size: 12px;
+        padding: 5px 8px;
+      }
+      .detail-panel .detail-label + .line-button {
+        border-top: 0;
+        margin-top: 0;
+        padding-top: 0;
+      }
+      .shift-when {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 12px;
+      }
+      .profile-shifts {
+        padding: 13px 15px;
+      }
+      .profile-shifts-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        margin-bottom: 6px;
+      }
+      .profile-shifts-head h2 {
+        font-size: 16px;
+      }
+      .exc-field {
+        display: grid;
+        gap: 8px;
+      }
+      .exc-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        min-height: 28px;
+        align-items: center;
+      }
+      .exc-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+        padding: 3px 3px 3px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        color: var(--ink);
+        background: var(--well);
+        box-shadow: var(--elev-sunken);
+      }
+      .exc-chip button {
+        width: 26px;
+        height: 26px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        color: var(--muted);
+      }
+      .exc-chip svg {
+        width: 13px;
+        height: 13px;
+      }
+      .exc-add {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+      }
+      .exc-add .secondary {
+        min-height: 36px;
+        padding: 6px 14px;
+      }
+
+      /* --- Cartera ---------------------------------------------------------- */
+      .wallet-stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        margin-top: 14px;
+        padding-top: 12px;
+        border-top: 1px solid #ffffff0d;
+        font-size: 11px;
+        color: var(--muted);
+      }
+      .wallet-stats span {
+        display: grid;
+        gap: 1px;
+      }
+      .wallet-stats span + span {
+        border-left: 1px solid #ffffff0d;
+      }
+      .wallet-stats strong {
+        font-size: 15px;
+        color: var(--ink);
+        letter-spacing: -0.3px;
+      }
+      .wallet-total .total-amount {
+        font-variant-numeric: tabular-nums;
+      }
+      /* Zona táctil completa en los nombres de la tabla sin alterar la altura de la fila. */
+      .salary-table td:first-child button {
+        display: block;
+        width: 100%;
+        padding: 11px 0;
+        margin: -11px 0;
+      }
+      .wallet-foot {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 14px;
+      }
+      .wallet-foot .footnote {
+        margin: 0;
+      }
+
+      /* --- Formularios y hojas --------------------------------------------- */
+      .field-error {
+        display: none;
+        margin: 8px 0 0;
+        padding: 8px 10px;
+        border-radius: 9px;
+        font-size: 12px;
+        line-height: 1.45;
+        color: #f2d6cf;
+        background: #3a2b28;
+        border: 1px solid #e3998b40;
+      }
+      .field-error.visible {
+        display: block;
+        animation: fade-in var(--dur-fast) var(--ease-out);
+      }
+      .warning {
+        border-color: #dcb46840;
+        background: linear-gradient(160deg, #36332b, #2f2e2a);
+      }
+      .reply {
+        margin: 0 0 6px;
+        padding: 11px 12px;
+        border-radius: var(--r-md);
+        background: var(--well);
+        box-shadow: var(--elev-sunken);
+        font-size: 13px;
+        line-height: 1.55;
+      }
+      .reply .detail-label {
+        margin-bottom: 4px;
+      }
+      .sheet textarea {
+        width: 100%;
+        resize: vertical;
+        min-height: 58px;
+        font-size: 13px;
+        line-height: 1.5;
+      }
+      .sheet {
+        background: linear-gradient(180deg, #2a2d2e, #252829);
+        border-color: #464c4e;
+        border-bottom: 0;
+        overscroll-behavior: contain;
+        scroll-padding-bottom: 24px;
+        box-shadow:
+          inset 0 1px 0 #ffffff12,
+          0 -18px 50px #00000059;
+      }
+      .sheet-header .icon-button {
+        background: #313537;
+        box-shadow:
+          inset 0 1px 0 #ffffff0d,
+          0 2px 5px #00000040;
+      }
+      .guard {
+        margin: -4px 0 14px;
+        padding: 12px;
+        border-radius: var(--r-md);
+        border: 1px solid #dcb46840;
+        background: #34312a;
+        font-size: 13px;
+        line-height: 1.5;
+        animation: fade-in var(--dur-fast) var(--ease-out);
+      }
+      .guard .action-row {
+        margin-top: 10px;
+      }
+      .toast {
+        box-shadow:
+          inset 0 1px 0 #fff,
+          0 10px 28px #00000066;
+      }
+
+      /* --- Movimiento ------------------------------------------------------- */
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+        }
+      }
+      @keyframes page-in {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+      }
+      @keyframes day-next {
+        from {
+          opacity: 0;
+          transform: translateX(14px);
+        }
+      }
+      @keyframes day-prev {
+        from {
+          opacity: 0;
+          transform: translateX(-14px);
+        }
+      }
+      @keyframes item-in {
+        from {
+          opacity: 0;
+          transform: translateY(-6px) scale(0.985);
+        }
+      }
+      @keyframes item-out {
+        to {
+          opacity: 0;
+          transform: translateX(16px) scale(0.985);
+        }
+      }
+      @keyframes sheet-up {
+        from {
+          transform: translateY(100%);
+        }
+      }
+      @keyframes sheet-down {
+        to {
+          transform: translateY(100%);
+        }
+      }
+      @keyframes dialog-in {
+        from {
+          opacity: 0;
+          transform: translateY(8px) scale(0.98);
+        }
+      }
+      @keyframes dialog-out {
+        to {
+          opacity: 0;
+          transform: translateY(6px) scale(0.98);
+        }
+      }
+      @keyframes fade-out {
+        to {
+          opacity: 0;
+        }
+      }
+      @keyframes toast-out {
+        to {
+          opacity: 0;
+          transform: translate(-50%, 8px);
+        }
+      }
+      .page-enter {
+        animation: page-in 180ms var(--ease-out) both;
+      }
+      .day-next {
+        animation: day-next 180ms var(--ease-out) both;
+      }
+      .day-prev {
+        animation: day-prev 180ms var(--ease-out) both;
+      }
+      .item-enter {
+        animation: item-in var(--dur-med) var(--ease-out) both;
+      }
+      .item-leave {
+        animation: item-out 170ms var(--ease-in) forwards;
+        pointer-events: none;
+      }
+      .month-next {
+        animation: day-next 170ms var(--ease-out) both;
+      }
+      .month-prev {
+        animation: day-prev 170ms var(--ease-out) both;
+      }
+      .swap-in {
+        animation: fade-in 170ms var(--ease-out) both;
+      }
+      .overlay {
+        animation: fade-in var(--dur-fast) ease-out;
+      }
+      .sheet {
+        animation: dialog-in var(--dur-med) var(--ease-out);
+      }
+      .overlay.closing {
+        animation: fade-out 180ms ease-in forwards;
+        pointer-events: none;
+      }
+      .overlay.closing .sheet {
+        animation: dialog-out 180ms var(--ease-in) forwards;
+      }
+      @keyframes toast-in {
+        from {
+          opacity: 0;
+          transform: translate(-50%, 8px);
+        }
+      }
+      .toast {
+        animation: toast-in var(--dur-med) var(--ease-out);
+      }
+      .toast.leaving {
+        animation: toast-out var(--dur-fast) var(--ease-in) forwards;
+      }
+      .calendar-day {
+        transition:
+          background-color var(--dur-fast) var(--ease-out),
+          color var(--dur-fast),
+          transform var(--dur-press) var(--ease-out),
+          box-shadow var(--dur-fast);
+      }
+      .calendar-day.selected {
+        box-shadow:
+          inset 0 1px 0 #fff,
+          0 3px 8px #0000004d;
+        transform: scale(1.04);
+      }
+      .calendar-day:active {
+        transform: scale(0.94);
+      }
+      .calendar-day.habitual:not(.selected) {
+        box-shadow: inset 0 1px 0 #ffffff0d;
+      }
+      @media (max-width: 699px) {
+        /* En móvil, las hojas suben desde el borde inferior. */
+        .sheet {
+          animation: sheet-up var(--dur-sheet) var(--ease-out);
+        }
+        .overlay.closing .sheet {
+          animation: sheet-down 200ms var(--ease-in) forwards;
+        }
+      }
+      @media (max-width: 440px) {
+        /* El cambio de horario pasa a una segunda línea en pantallas estrechas. */
+        .change {
+          grid-template-columns: 66px minmax(0, 1fr);
+          row-gap: 2px;
+        }
+        .change-time {
+          grid-column: 2;
+        }
+      }
+      @media (max-width: 360px) {
+        .next-time {
+          display: none;
+        }
+        .date-row {
+          gap: 4px;
+        }
+        .date-step {
+          width: 32px;
+        }
+        .wallet-foot {
+          flex-direction: column;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .draft-state i {
+          animation: none;
+        }
+      }
     </style>
   </head>
   <body>
@@ -2165,7 +3058,17 @@
         lock: '<rect x="5" y="10" width="14" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
         edit: '<path d="m16 3 5 5-12 12-6 1 1-6zM13 6l5 5"/>',
         notice: '<path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4"/>',
+        copy: '<rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/>',
+        history: '<path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5M12 7v5l3 2"/>',
+        download: '<path d="M12 3v12m-5-5 5 5 5-5M4 21h16"/>',
+        alert: '<path d="M12 3 2 20h20zM12 10v4m0 3v.5"/>',
       };
+      /* Versión del modelo local. La v1 (iteración 04) se migra sin perder datos. */
+      const DB_VERSION = 2;
+      const ROLE_LABEL = { admin: "Encargado", partial: "Administrador parcial", worker: "Trabajador" };
+      /* Movimiento: las esperas en JS se omiten si el sistema pide reducir animaciones. */
+      const motionOK = () => !matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const later = (ms, fn) => (motionOK() ? setTimeout(fn, ms) : fn());
       function icon(k, cls = "") {
         return `<svg class="${cls}" viewBox="0 0 24 24" aria-hidden="true">${icons[k] || icons.user}</svg>`;
       }
@@ -2325,9 +3228,10 @@
           });
         });
         return {
-          version: 1,
+          version: DB_VERSION,
           employees,
           shifts,
+          history: [],
           settings: { nightStart: "22:00", nightEnd: "06:00" },
           notices: [
             {
@@ -2351,12 +3255,24 @@
           ],
         };
       }
+      /* Acepta datos guardados por la iteración 04 (v1) y los completa sin alterar turnos, tarifas ni avisos. */
+      function migrate(d) {
+        if (!d || !Array.isArray(d.shifts) || !Array.isArray(d.employees)) throw Error("Invalid demo");
+        if (d.version === 1) d.version = 2;
+        if (d.version !== DB_VERSION) throw Error("Unknown version");
+        if (!Array.isArray(d.history)) d.history = [];
+        if (!Array.isArray(d.notices)) d.notices = [];
+        if (!d.settings) d.settings = { nightStart: "22:00", nightEnd: "06:00" };
+        d.employees.forEach((p) => {
+          if (!Array.isArray(p.exceptions)) p.exceptions = [];
+        });
+        return d;
+      }
       let storageAvailable = true,
         db;
       try {
         const saved = localStorage.getItem(STORE);
-        db = saved ? JSON.parse(saved) : seed();
-        if (db.version !== 1 || !Array.isArray(db.shifts) || !Array.isArray(db.employees)) throw Error("Invalid demo");
+        db = saved ? migrate(JSON.parse(saved)) : seed();
       } catch {
         db = seed();
       }
@@ -2374,7 +3290,13 @@
         modal = null,
         modalOpener = null,
         toastTimer = null,
-        lastUndo = null;
+        lastUndo = null,
+        showResolved = false;
+      /* Estado solo visual: qué animar en el siguiente render. */
+      let lastView = null,
+        lastDate = null,
+        enterIds = new Set(),
+        walletFrom = null;
       const screen = $("#screen"),
         viewport = $("#viewport"),
         modalRoot = $("#modal-root");
@@ -2450,14 +3372,28 @@
         clearTimeout(toastTimer);
         $("#toast-root").innerHTML =
           `<div class="toast"><span>${esc(message)}</span>${action ? '<button data-action="undo">Deshacer</button>' : ""}</div>`;
-        if (action) lastUndo = action;
+        lastUndo = action || null;
         toastTimer = setTimeout(
           () => {
-            $("#toast-root").innerHTML = "";
+            hideToast();
             lastUndo = null;
           },
           action ? 8500 : 4500,
         );
+      }
+      function hideToast() {
+        const t = $("#toast-root .toast");
+        if (!t) return;
+        t.classList.add("leaving");
+        later(160, () => t.isConnected && t.remove());
+      }
+      /* Errores de validación junto al campo afectado, en lugar de un aviso flotante. */
+      function fieldError(id, message, focusEl) {
+        const el = document.getElementById(id);
+        if (!el) return showToast(message);
+        el.textContent = message;
+        el.classList.toggle("visible", !!message);
+        if (message && focusEl) focusEl.focus();
       }
       function requireManager() {
         if (canEdit()) return true;
@@ -2490,6 +3426,64 @@
         if (available(p, d) === 0) return "No tiene disponibilidad habitual para este día.";
         return "";
       }
+      /* Versión breve del conflicto, para listas estrechas. */
+      function conflictShort(p, d) {
+        const c = conflict(p, d);
+        if (!c) return "";
+        if (c.startsWith("Tiene una excepción")) return "Excepción ese día";
+        if (c.startsWith("Ha enviado")) return "Aviso abierto ese día";
+        return `No disponible los ${["domingos", "lunes", "martes", "miércoles", "jueves", "viernes", "sábados"][dateObj(d).getDay()]}`;
+      }
+      /* Turnos programados desde la fecha de la demo que chocan con avisos o disponibilidad. */
+      function upcomingConflicts() {
+        return db.shifts
+          .filter((s) => s.date >= DEMO_DAY)
+          .map((s) => ({ s, p: employee(s.employeeId) }))
+          .filter(({ s, p }) => p && conflict(p, s.date))
+          .sort((a, b) => a.s.date.localeCompare(b.s.date) || a.s.start.localeCompare(b.s.start));
+      }
+      function nextShifts(id, limit = 3) {
+        return db.shifts
+          .filter((s) => s.employeeId === id && s.date >= DEMO_DAY)
+          .sort((a, b) => a.date.localeCompare(b.date) || a.start.localeCompare(b.start))
+          .slice(0, limit);
+      }
+      function overnight(s) {
+        return mins(s.end) < mins(s.start);
+      }
+      function timeRange(s) {
+        return `${s.start}–${s.end}${overnight(s) ? '<span class="next-day" title="Sale al día siguiente">+1</span>' : ""}`;
+      }
+      /* "jue 05": para usar dentro de una frase ("Copiar del jue 29") o en listados compactos. */
+      function shortDay(d) {
+        return dayLabel(d).replace(/,? \p{L}+$/u, "").replace(",", "").toLowerCase();
+      }
+      function ago(isoTime) {
+        const m = Math.round((Date.now() - new Date(isoTime)) / 60000);
+        if (m < 1) return "ahora mismo";
+        if (m < 60) return `hace ${m} min`;
+        if (m < 1440) return `hace ${Math.round(m / 60)} h`;
+        return `el ${new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "short" }).format(new Date(isoTime)).replace(".", "")}`;
+      }
+      /* Diferencias entre la jornada guardada y el borrador: alimentan el historial y el contador de cambios. */
+      function diffDay(before, after) {
+        const changes = [],
+          a = new Map(after.map((s) => [s.employeeId, s])),
+          b = new Map(before.map((s) => [s.employeeId, s]));
+        a.forEach((s, id) => {
+          const o = b.get(id);
+          if (!o) changes.push({ kind: "add", employeeId: id, after: `${s.start}–${s.end}` });
+          else if (o.start !== s.start || o.end !== s.end)
+            changes.push({ kind: "edit", employeeId: id, before: `${o.start}–${o.end}`, after: `${s.start}–${s.end}` });
+        });
+        b.forEach((s, id) => {
+          if (!a.has(id)) changes.push({ kind: "remove", employeeId: id, before: `${s.start}–${s.end}` });
+        });
+        return changes;
+      }
+      function savedDay(d = selectedDate) {
+        return db.shifts.filter((s) => s.date === d);
+      }
       function nav() {
         const tabs = [
           ["home", "Inicio", "home"],
@@ -2498,14 +3492,42 @@
           ["wallet", "Cartera", "wallet"],
           ["profile", "Perfil", "user"],
         ];
-        $("#nav").innerHTML = tabs
-          .map(
-            ([id, label, ico]) =>
-              `<button class="nav-item ${view === id || (view === "detail" && id === "team") ? "active" : ""} ${id === "wallet" && !canMoney() ? "locked" : ""}" data-action="nav" data-view="${id}" ${view === id || (view === "detail" && id === "team") ? 'aria-current="page"' : ""} aria-label="${label}${id === "wallet" && !canMoney() ? ", acceso restringido" : ""}">${icon(ico)}<span>${label}</span></button>`,
-          )
-          .join("");
+        /* La barra se crea una vez y después solo cambia de estado: así el indicador puede deslizarse. */
+        const bar = $("#nav");
+        if (!bar.dataset.ready) {
+          bar.innerHTML =
+            tabs
+              .map(
+                ([id, label, ico]) =>
+                  `<button class="nav-item" data-action="nav" data-view="${id}">${icon(ico)}<span>${label}</span></button>`,
+              )
+              .join("") + '<span class="nav-indicator" aria-hidden="true"></span>';
+          bar.dataset.ready = "1";
+        }
+        const activeId = view === "detail" ? "team" : view;
+        tabs.forEach(([id, label]) => {
+          const b = bar.querySelector(`[data-view="${id}"]`),
+            on = id === activeId,
+            locked = id === "wallet" && !canMoney();
+          b.classList.toggle("active", on);
+          b.classList.toggle("locked", locked);
+          if (on) b.setAttribute("aria-current", "page");
+          else b.removeAttribute("aria-current");
+          b.setAttribute("aria-label", label + (locked ? ", acceso restringido" : ""));
+        });
+        placeIndicator();
         const b = $(".demo-switch");
         b.innerHTML = `${sessionRole === "admin" ? "Vista de encargado" : sessionRole === "partial" ? "Administrador parcial" : "Vista de trabajador"} ${icon("down")}`;
+      }
+      function placeIndicator(animate = true) {
+        const bar = $("#nav"),
+          b = bar.querySelector(".nav-item.active"),
+          ind = bar.querySelector(".nav-indicator");
+        if (!b || !ind) return;
+        if (!animate || !ind.dataset.placed) ind.style.transition = "none";
+        ind.style.transform = `translateX(${b.offsetLeft + b.offsetWidth / 2 - 17}px)`;
+        ind.dataset.placed = "1";
+        if (ind.style.transition) requestAnimationFrame(() => requestAnimationFrame(() => (ind.style.transition = "")));
       }
       function render(keepScroll = false) {
         const y = viewport.scrollTop;
@@ -2520,8 +3542,33 @@
         };
         screen.innerHTML = `<section class="page page-${view}" aria-label="${{ home: "Inicio", schedule: "Horarios", team: "Equipo", detail: "Ficha del trabajador", wallet: "Cartera", profile: "Perfil personal" }[view]}">${renderers[view]()}</section>`;
         viewport.scrollTop = keepScroll ? y : 0;
+        /* Transiciones breves: cambio de sección, cambio de día y elementos recién añadidos. */
+        if (lastView !== null && view !== lastView) screen.firstElementChild.classList.add("page-enter");
+        else if (view === "schedule" && lastDate && selectedDate !== lastDate)
+          $(".day-body")?.classList.add(selectedDate > lastDate ? "day-next" : "day-prev");
+        enterIds.forEach((id) => $(`[data-shift="${id}"]`)?.classList.add("item-enter"));
+        enterIds.clear();
+        if (view === "wallet" && walletFrom !== null) countUp($("#wallet-total"), walletFrom, stats().money);
+        walletFrom = null;
+        lastView = view;
+        lastDate = selectedDate;
+      }
+      /* Las cifras se animan solo al cambiar de periodo; el valor final siempre es el exacto. */
+      function countUp(el, from, to) {
+        if (!el || from === to || !motionOK()) return;
+        const t0 = performance.now(),
+          dur = 320;
+        const step = (t) => {
+          const k = Math.min(1, (t - t0) / dur),
+            e = 1 - Math.pow(1 - k, 3);
+          el.textContent = euro(k < 1 ? Math.round(from + (to - from) * e) : to);
+          if (k < 1 && el.isConnected) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
       }
       function go(next) {
+        /* Pulsar Horarios mientras se edita esa misma jornada no debe ofrecer descartar el borrador. */
+        if (draft && next === "schedule" && view === "schedule") return;
         if (draft) {
           openModal("discard", { target: next });
           return;
@@ -2540,26 +3587,41 @@
         return rows.length ? rows.map((s) => s.date).sort()[0] : null;
       }
       function homeView() {
-        const next = upcoming(),
-          rows = next
-            ? db.shifts.filter((s) => s.date === next && (sessionRole !== "worker" || s.employeeId === "alejandro"))
-            : [],
-          total = monthStats(sessionRole === "worker" ? "alejandro" : null),
+        const worker = sessionRole === "worker",
+          next = upcoming(),
+          rows = next ? db.shifts.filter((s) => s.date === next && (!worker || s.employeeId === "alejandro")) : [],
+          total = monthStats(worker ? "alejandro" : null),
           count = new Set(rows.map((s) => s.employeeId)).size,
-          first = rows.map((s) => s.start).sort()[0];
-        let notices = db.notices.filter((n) => sessionRole !== "worker" || n.employeeId === "alejandro");
+          first = rows.map((s) => s.start).sort()[0],
+          conflicts = canEdit() ? upcomingConflicts() : [];
+        let notices = db.notices.filter((n) => !worker || n.employeeId === "alejandro");
         const rank = { Pendiente: 0, Revisado: 1, Resuelto: 2 };
         notices.sort((a, b) => rank[a.status] - rank[b.status] || b.sentAt.localeCompare(a.sentAt));
-        return `<header class="home-head"><button class="icon-button home-options" data-action="session" aria-label="Opciones del prototipo">${icon("settings")}</button><svg class="wordmark" viewBox="0 0 191 40" role="img" aria-label="VESSEL"><text x="4" y="31">VESSEL</text><text x="4" y="31" style="stroke-width:.35;fill:#222425;transform:translate(.25px,.25px) scale(.99);transform-origin:center">VESSEL</text></svg><p class="home-date">Jueves, 05 noviembre</p></header><div class="metric-grid"><button class="metric panel" data-action="upcoming"><span class="metric-label">Próxima apertura</span><strong class="metric-value">${next ? next.slice(8) : "—"}</strong><span class="metric-unit">${next ? new Intl.DateTimeFormat("es-ES", { month: "short" }).format(dateObj(next)).replace(".", "").toUpperCase() : "Sin programar"}</span></button><button class="metric panel" data-action="upcoming"><span class="metric-label">${sessionRole === "worker" ? "Tus próximos turnos" : "Personal asignado"}</span><strong class="metric-value">${sessionRole === "worker" ? rows.length : count}</strong><span class="metric-unit">${sessionRole === "worker" ? "en tu próxima jornada" : "personas"}</span></button><button class="metric panel" data-action="nav" data-view="${canMoney() ? "wallet" : "profile"}"><span class="metric-label">${sessionRole === "worker" ? "Tus horas previstas" : "Total horas previstas"}</span><strong class="metric-value">${fmt(total.total)}<span style="font-size:.75em"> h</span></strong><span class="metric-unit">Noviembre 2026</span></button><button class="metric panel" data-action="upcoming"><span class="metric-label">Hora de entrada</span><strong class="metric-value time">${first || "—"}</strong><span class="metric-unit">Próxima jornada</span></button></div><div class="section-heading"><h2>Avisos</h2><small>${notices.filter((n) => n.status === "Pendiente").length} pendientes</small></div><div class="stack">${
-          notices.length
-            ? notices
+        const resolved = notices.filter((n) => n.status === "Resuelto").length,
+          visible = showResolved ? notices : notices.filter((n) => n.status !== "Resuelto"),
+          pending = notices.filter((n) => n.status === "Pendiente").length;
+        const metric = (action, label, value, unit, extra = "") =>
+          `<button class="metric panel" data-action="${action}" ${extra}><span class="metric-label">${label}</span><strong class="metric-value">${value}</strong><span class="metric-unit">${unit}</span></button>`;
+        return `<header class="home-head"><button class="icon-button home-options" data-action="session" aria-label="Opciones del prototipo">${icon("settings")}</button><svg class="wordmark" viewBox="0 0 191 40" role="img" aria-label="VESSEL"><text x="4" y="31">VESSEL</text><text x="4" y="31" style="stroke-width:.35;fill:#222425;transform:translate(.25px,.25px) scale(.99);transform-origin:center">VESSEL</text></svg><p class="home-date">${dayLabel(DEMO_DAY, true)}</p></header>
+        <div class="metric-grid">
+        ${metric("upcoming", "Próxima apertura", next ? next.slice(8) : "—", next ? new Intl.DateTimeFormat("es-ES", { month: "short" }).format(dateObj(next)).replace(".", "").toUpperCase() : "Sin programar")}
+        ${metric("upcoming", worker ? "Tus próximos turnos" : "Personal asignado", worker ? rows.length : count, worker ? "en tu próxima jornada" : "personas")}
+        ${metric("nav", worker ? "Tus horas previstas" : "Total horas previstas", `${fmt(total.total)}<span class="metric-suffix"> h</span>`, "Noviembre 2026", `data-view="${canMoney() ? "wallet" : "profile"}"`)}
+        ${metric("upcoming", "Hora de entrada", first || "—", "Próxima jornada").replace('class="metric-value"', 'class="metric-value time"')}
+        </div>
+        ${conflicts.length ? `<button class="conflict-banner" data-action="conflicts">${icon("alert")}<span><strong>${conflicts.length} ${conflicts.length === 1 ? "turno por revisar" : "turnos por revisar"}</strong><small>Asignaciones afectadas por avisos o disponibilidad</small></span>${icon("chevron", "chevron")}</button>` : ""}
+        <div class="section-heading"><h2>Avisos</h2><small>${pending ? `${pending} ${pending === 1 ? "pendiente" : "pendientes"}` : "Sin pendientes"}</small></div>
+        <div class="stack">${
+          visible.length
+            ? visible
                 .map((n) => {
                   const p = employee(n.employeeId);
-                  return `<button class="notice-card panel" data-action="notice" data-id="${n.id}">${avatar(p)}<span class="person-text"><span class="person-name">${esc(p.name)}</span><span class="notice-message" style="display:block">${esc(n.message)}</span><span class="notice-meta">${n.status === "Pendiente" ? '<span class="pending-dot"></span>' : ""}${esc(n.status)} · ${dayLabel(n.date)}</span></span>${icon("chevron", "chevron")}</button>`;
+                  return `<button class="notice-card panel ${n.status === "Resuelto" ? "is-resolved" : ""}" data-action="notice" data-id="${n.id}">${avatar(p)}<span class="person-text"><span class="person-name">${esc(p.name)}</span><span class="notice-message">${esc(n.message)}</span><span class="notice-meta">${noticeStatus(n)}<span>${esc(n.reason)} · ${dayLabel(n.date)}</span></span></span>${icon("chevron", "chevron")}</button>`;
                 })
                 .join("")
-            : '<p class="empty small">No hay avisos pendientes.</p>'
-        }</div>`;
+            : `<p class="empty-line">${icon("check")} No hay avisos abiertos.</p>`
+        }</div>
+        ${resolved ? `<button class="text-button" data-action="toggle-resolved" aria-expanded="${showResolved}">${showResolved ? "Ocultar resueltos" : `Mostrar resueltos (${resolved})`}</button>` : ""}`;
       }
       function scheduleRows() {
         return (draft || db.shifts.filter((s) => s.date === selectedDate)).filter(
@@ -2567,16 +3629,44 @@
         );
       }
       function scheduleView() {
-        const rows = scheduleRows(),
+        const worker = sessionRole === "worker",
+          rows = scheduleRows(),
           hours = rows.reduce((a, s) => a + duration(s), 0),
-          active = db.employees.filter((p) => p.active).length;
-        return `<header class="page-head"><h1>Horarios</h1>${canEdit() ? `<button class="pill" data-action="${draft ? "save-day" : "edit-day"}">${draft ? "Guardar" : "Editar"}</button>` : ""}</header><button class="pill date-control" data-action="calendar">${dayLabel(selectedDate)} ${icon("down")}</button><div class="panel summary-strip"><div class="summary-item"><span class="summary-value">${active}</span><span class="summary-label">Empleados</span></div><div class="summary-item"><span class="summary-value" id="day-count">${rows.length}</span><span class="summary-label">${sessionRole === "worker" ? "Tus turnos" : "Turnos"}</span></div><div class="summary-item"><span class="summary-value" id="day-hours">${fmt(hours)} h</span><span class="summary-label">Horas previstas</span></div></div>${draft ? '<div class="draft-guidance"><span>Toca un turno para editarlo.</span><button data-action="cancel-draft">Cancelar</button></div>' : ""}<div class="shift-list">${rows.length ? rows.map((s) => shiftMarkup(s)).join("") : `<div class="empty">${icon("calendar")}<h2>${sessionRole === "worker" ? "No tienes turnos este día" : "Sin turnos programados"}</h2><p>${canEdit() ? "Puedes planificar esta jornada, también si es una apertura extraordinaria." : "Selecciona otra fecha para consultar tu planificación."}</p>${canEdit() && !draft ? '<button class="secondary" data-action="edit-day">Planificar jornada</button>' : ""}</div>`}</div>${draft ? `<button class="secondary add-button" data-action="add-picker">${icon("plus")} Añadir trabajador</button>` : ""}`;
+          active = db.employees.filter((p) => p.active).length,
+          changes = draft ? diffDay(savedDay(), draft).length : 0,
+          source = addDay(selectedDate, -7),
+          canCopy = canEdit() && savedDay(source).length > 0,
+          log = canEdit() ? db.history.filter((h) => h.date === selectedDate) : [];
+        const empty = `<div class="empty">${icon("calendar")}<h2>${worker ? "No tienes turnos este día" : "Sin turnos programados"}</h2><p>${canEdit() ? "Puedes planificar esta jornada, también si es una apertura extraordinaria." : "Selecciona otra fecha para consultar tu planificación."}</p>${
+          canEdit() && !draft
+            ? `<div class="empty-actions"><button class="secondary" data-action="edit-day">Planificar jornada</button>${canCopy ? `<button class="secondary" data-action="copy-week" data-start="1">${icon("copy")} Copiar del ${shortDay(source)}</button>` : ""}</div>`
+            : ""
+        }</div>`;
+        return `<header class="page-head"><h1>Horarios</h1>${canEdit() ? `<button class="pill ${draft ? "pill-primary" : ""}" data-action="${draft ? "save-day" : "edit-day"}">${draft ? "Guardar" : "Editar"}</button>` : ""}</header>
+        <div class="date-row"><button class="icon-button date-step" data-action="day-step" data-step="-1" aria-label="Día anterior">${icon("left")}</button><button class="pill date-control" data-action="calendar" aria-label="Cambiar fecha. ${dayLabel(selectedDate, true)}">${dayLabel(selectedDate)} ${icon("down")}</button><button class="icon-button date-step" data-action="day-step" data-step="1" aria-label="Día siguiente">${icon("chevron")}</button>${selectedDate !== DEMO_DAY ? `<button class="text-button today-link" data-action="day-today">Hoy</button>` : ""}</div>
+        <div class="day-body">
+        <div class="panel summary-strip"><div class="summary-item"><span class="summary-value">${active}</span><span class="summary-label">Empleados</span></div><div class="summary-item"><span class="summary-value" id="day-count">${rows.length}</span><span class="summary-label">${worker ? "Tus turnos" : "Turnos"}</span></div><div class="summary-item"><span class="summary-value" id="day-hours">${fmt(hours)} h</span><span class="summary-label">Horas previstas</span></div></div>
+        ${
+          draft
+            ? `<div class="draft-bar" role="status"><span class="draft-state"><i aria-hidden="true"></i>${changes ? `Borrador · ${changes} ${changes === 1 ? "cambio sin guardar" : "cambios sin guardar"}` : "Editando · toca un turno para cambiarlo"}</span><button class="text-button" data-action="cancel-draft">Cancelar</button></div>`
+            : ""
+        }
+        <div class="shift-list">${rows.length ? rows.map((s) => shiftMarkup(s)).join("") : empty}</div>
+        ${
+          draft
+            ? `<div class="draft-actions"><button class="secondary add-button" data-action="add-picker">${icon("plus")} Añadir trabajador</button>${canCopy ? `<button class="secondary add-button" data-action="copy-week">${icon("copy")} Copiar del ${shortDay(source)}</button>` : ""}</div>`
+            : ""
+        }
+        ${log.length && !draft ? `<button class="history-link" data-action="history">${icon("history")}<span>Última modificación ${ago(log[0].at)} · ${esc(ROLE_LABEL[log[0].role] || log[0].role)}</span>${icon("chevron", "chevron")}</button>` : ""}
+        </div>`;
       }
       function shiftMarkup(s) {
-        const p = employee(s.employeeId);
+        const p = employee(s.employeeId),
+          warn = canEdit() ? conflict(p, s.date) : "",
+          flag = warn ? `<span class="conflict-dot" role="img" aria-label="Revisar: ${esc(warn)}" title="${esc(warn)}"></span>` : "";
         return draft
-          ? `<article class="shift-card panel compact-edit" data-shift="${s.id}"><button class="shift-main" data-action="edit-draft-shift" data-id="${s.id}" aria-label="Editar turno de ${esc(p.name)}">${avatar(p)}<span class="shift-person"><strong>${esc(p.name)}</strong><span class="person-sub" style="display:block">${esc(p.job)} · ${fmt(duration(s))} h</span></span><span class="time-chip">${s.start}–${s.end}</span></button><button class="icon-button remove-compact" data-action="remove-shift" data-id="${s.id}" aria-label="Retirar a ${esc(p.name)} de la jornada">${icon("close")}</button></article>`
-          : `<button class="shift-card panel" data-action="shift-detail" data-id="${s.id}">${avatar(p)}<span class="shift-person"><strong>${esc(p.name)}</strong><span class="shift-role"> · ${esc(p.job)}</span></span><span class="time-chip">${s.start}–${s.end}</span></button>`;
+          ? `<article class="shift-card panel compact-edit" data-shift="${s.id}"><button class="shift-main" data-action="edit-draft-shift" data-id="${s.id}" aria-label="Editar turno de ${esc(p.name)}">${avatar(p)}<span class="shift-person"><strong>${esc(p.name)}</strong>${flag}<span class="person-sub">${esc(p.job)} · ${fmt(duration(s))} h</span></span><span class="time-chip">${timeRange(s)}</span></button><button class="icon-button remove-compact" data-action="remove-shift" data-id="${s.id}" aria-label="Retirar a ${esc(p.name)} de la jornada">${icon("close")}</button></article>`
+          : `<button class="shift-card panel" data-action="shift-detail" data-id="${s.id}" data-shift="${s.id}">${avatar(p)}<span class="shift-person"><strong>${esc(p.name)}</strong>${flag}<span class="shift-role"> · ${esc(p.job)}</span></span><span class="time-chip">${timeRange(s)}</span></button>`;
       }
 
       function searchMarkup(kind, value) {
@@ -2639,10 +3729,12 @@
       function teamRows() {
         return (
           paged(teamPeople(), "team")
-            .map(
-              (p) =>
-                `<button class="employee-row panel" data-action="${teamEdit ? "edit-person" : "person"}" data-id="${p.id}">${avatar(p)}<span class="person-text"><span class="person-name">${esc(p.name)}</span><span class="person-sub" style="display:block">${esc(p.job)}${!p.active ? " · Inactivo" : ""}</span></span>${!teamEdit ? `<span class="availability">${dayChips(p)}</span>` : ""}${icon(teamEdit ? "edit" : "chevron", "chevron")}</button>`,
-            )
+            .map((p) => {
+              /* El próximo turno de compañeros solo lo ve quien gestiona horarios: el trabajador solo consulta los suyos. */
+              const nextShift = canEdit() && p.active ? nextShifts(p.id, 1)[0] : null,
+                sub = `${esc(p.job)}${!p.active ? " · Inactivo" : ""}${nextShift ? ` · <span class="next-shift">${shortDay(nextShift.date)}<span class="next-time"> · ${nextShift.start}</span></span>` : ""}`;
+              return `<button class="employee-row panel ${!p.active ? "is-inactive" : ""}" data-action="${teamEdit ? "edit-person" : "person"}" data-id="${p.id}">${avatar(p)}<span class="person-text"><span class="person-name">${esc(p.name)}</span><span class="person-sub">${sub}</span></span>${!teamEdit ? `<span class="availability">${dayChips(p)}</span>` : ""}${icon(teamEdit ? "edit" : "chevron", "chevron")}</button>`;
+            })
             .join("") || '<div class="no-results">No hay trabajadores con ese nombre.</div>'
         );
       }
@@ -2654,8 +3746,39 @@
         const p = employee(selectedEmployee);
         if (!p) return "<p>Trabajador no encontrado.</p>";
         const h = monthStats(p.id),
-          money = canMoney() || p.id === "alejandro";
-        return `<div class="detail-top"><button class="pill" data-action="back-team">← Volver</button>${isAdmin() ? `<button class="icon-button" data-action="edit-person" data-id="${p.id}" aria-label="Editar ficha de ${esc(p.name)}">${icon("edit")}</button>` : ""}</div><header class="identity">${avatar(p, "large")}<h1>${esc(p.name)}</h1><p>${esc(p.job)} · ${fmt(h.total)} h este mes</p>${!p.active ? '<span class="badge">Inactivo</span>' : ""}</header><div class="stack"><div class="panel detail-panel"><p class="detail-label">Disponibilidad habitual</p><div class="detail-availability">${dayChips(p)}</div>${p.exceptions.length ? `<p class="exception">Excepciones: ${p.exceptions.map((d) => dayLabel(d)).join(" · ")}</p>` : ""}</div><div class="panel detail-panel">${money ? `<div class="detail-line"><span>Tarifa:</span><span>${p.rate == null ? "Sin configurar" : fmt(p.rate) + " €/h"}</span></div>` : ""}<div class="detail-line"><span>Permisos:</span><span>${esc(p.role)}</span></div></div><div class="panel detail-panel"><p class="detail-label">Desglose de horas · Noviembre</p><div class="hours-breakdown"><strong>Total: ${fmt(h.total)} h</strong><span>Tarde: ${fmt(h.afternoon)} h</span><span>Noche: ${fmt(h.night)} h</span></div></div>${money ? `<div class="panel detail-panel"><p class="detail-label">Salario previsto</p><div class="salary-line"><strong>${euro(h.money)}</strong><small>${h.missing ? "Hay turnos sin tarifa" : fmt(h.total) + " h · tarifas de cada turno"}</small></div></div>` : ""}</div>`;
+          money = canMoney() || p.id === "alejandro",
+          seeShifts = canEdit() || p.id === "alejandro",
+          upcomingRows = seeShifts ? nextShifts(p.id, 4) : [],
+          openNotices = canEdit() || p.id === "alejandro" ? db.notices.filter((n) => n.employeeId === p.id && n.status !== "Resuelto") : [];
+        return `<div class="detail-top"><button class="pill" data-action="back-team">← Volver</button>${isAdmin() ? `<button class="icon-button" data-action="edit-person" data-id="${p.id}" aria-label="Editar ficha de ${esc(p.name)}">${icon("edit")}</button>` : ""}</div>
+        <header class="identity">${avatar(p, "large")}<h1>${esc(p.name)}</h1><p>${esc(p.job)} · ${fmt(h.total)} h este mes</p>${!p.active ? '<span class="badge">Inactivo</span>' : ""}</header>
+        <div class="stack">
+        <div class="panel detail-panel"><p class="detail-label">Disponibilidad habitual</p><div class="detail-availability">${dayChips(p)}</div>${p.exceptions.length ? `<p class="exception">Excepciones: ${p.exceptions.slice().sort().map((d) => dayLabel(d)).join(" · ")}</p>` : ""}</div>
+        ${
+          openNotices.length
+            ? `<div class="panel detail-panel"><p class="detail-label">Avisos abiertos</p>${openNotices
+                .map((n) => `<button class="detail-line line-button" data-action="notice" data-id="${n.id}"><span>${esc(n.reason)} · ${dayLabel(n.date)}</span>${noticeStatus(n)}</button>`)
+                .join("")}</div>`
+            : ""
+        }
+        ${
+          seeShifts
+            ? `<div class="panel detail-panel"><p class="detail-label">Próximos turnos</p>${
+                upcomingRows.length
+                  ? upcomingRows
+                      .map((s) => {
+                        const warn = canEdit() ? conflict(p, s.date) : "";
+                        return `<button class="detail-line line-button" data-action="go-day" data-date="${s.date}"><span>${dayLabel(s.date)}${warn ? ` <span class="conflict-dot" role="img" aria-label="Revisar: ${esc(warn)}" title="${esc(warn)}"></span>` : ""}</span><span class="time-chip">${timeRange(s)}</span></button>`;
+                      })
+                      .join("")
+                  : '<p class="quiet small">Sin turnos programados.</p>'
+              }</div>`
+            : ""
+        }
+        <div class="panel detail-panel">${money ? `<div class="detail-line"><span>Tarifa:</span><span>${p.rate == null ? "Sin configurar" : fmt(p.rate) + " €/h"}</span></div>` : ""}<div class="detail-line"><span>Permisos:</span><span>${esc(p.role)}</span></div></div>
+        <div class="panel detail-panel"><p class="detail-label">Desglose de horas · Noviembre</p><div class="hours-breakdown"><strong>Total: ${fmt(h.total)} h</strong><span>Tarde: ${fmt(h.afternoon)} h</span><span>Noche: ${fmt(h.night)} h</span></div></div>
+        ${money ? `<div class="panel detail-panel"><p class="detail-label">Salario previsto</p><div class="salary-line"><strong>${euro(h.money)}</strong><small>${h.missing ? "Hay turnos sin tarifa" : fmt(h.total) + " h · tarifas de cada turno"}</small></div></div>` : ""}
+        </div>`;
       }
       function walletPeople() {
         return db.employees
@@ -2678,18 +3801,32 @@
         if (!canMoney())
           return `<div class="empty">${icon("lock")}<h2>Acceso restringido</h2><p>Tu perfil reúne tus horas y tu remuneración prevista.</p><button class="secondary" data-action="nav" data-view="profile">Ir a mi perfil</button></div>`;
         const h = stats();
-        return `<header class="page-head wallet-header"><div><h1>Cartera</h1><p class="subtitle">Control salarial</p></div><button class="pill" data-action="period">${esc(period.label)} ${icon("down")}</button></header><div class="wallet-layout"><div class="wallet-overview"><div class="wallet-total panel"><p class="muted">Total salarios previstos</p><p class="total-amount" id="wallet-total">${euro(h.money)}</p><p class="muted small">Total a remunerar · ${esc(period.label)}</p></div>${searchMarkup("wallet", walletQuery)}</div><div class="wallet-list"><table class="salary-table"><thead><tr><th scope="col">Remuneración</th><th scope="col">h</th><th scope="col">Salario</th></tr></thead><tbody id="wallet-rows">${walletRows()}</tbody></table><div id="wallet-pagination">${pagination("wallet")}</div><p class="footnote">Importes previstos a partir de los turnos programados.${h.missing ? " Hay " + h.missing + " turnos sin tarifa configurada." : ""}</p></div></div>`;
+        return `<header class="page-head wallet-header"><div><h1>Cartera</h1><p class="subtitle">Control salarial</p></div><button class="pill" data-action="period">${esc(period.label)} ${icon("down")}</button></header>
+        <div class="wallet-layout"><div class="wallet-overview">
+        <div class="wallet-total panel"><p class="muted">Total salarios previstos</p><p class="total-amount" id="wallet-total">${euro(h.money)}</p><p class="muted small">Total a remunerar · ${esc(period.label)}</p>
+        <div class="wallet-stats"><span><strong>${fmt(h.total)} h</strong>previstas</span><span><strong>${fmt(h.night)} h</strong>nocturnas</span><span><strong>${periodShiftCount()}</strong>turnos</span></div></div>
+        ${searchMarkup("wallet", walletQuery)}</div>
+        <div class="wallet-list"><table class="salary-table"><thead><tr><th scope="col">Remuneración</th><th scope="col">h</th><th scope="col">Salario</th></tr></thead><tbody id="wallet-rows">${walletRows()}</tbody></table><div id="wallet-pagination">${pagination("wallet")}</div>
+        <div class="wallet-foot"><p class="footnote">Importes previstos a partir de los turnos programados. No equivalen a una nómina.${h.missing ? " Hay " + h.missing + " turnos sin tarifa configurada." : ""}</p><button class="secondary small-button" data-action="export-csv">${icon("download")} Exportar CSV</button></div></div></div>`;
       }
 
       function profileView() {
         const p = current(),
-          h = monthStats(p.id);
-        return `<header class="page-head tight"><div><h1>Perfil Personal</h1><p class="subtitle">Autogestión de empleado</p></div></header><div class="stack"><div class="panel profile-card"><div class="profile-identity">${avatar(p, "medium")}<div><p class="person-name">${esc(p.name)}</p><p class="person-sub">${esc(p.job)} · ${fmt(h.total)} h este mes</p></div></div><div class="tags"><span class="tag">Tarifa: ${p.rate == null ? "Sin configurar" : fmt(p.rate) + " €/h"}</span><span class="tag">Rol: ${esc(p.role)}</span></div><p class="profile-availability">Disponibilidad habitual: [ ${p.availability
-          .map((v, i) => (v === 1 ? ["J", "V", "S"][i] : null))
-          .filter(Boolean)
-          .join(
-            " · ",
-          )} ]</p></div><form class="panel notice-form" id="notice-form"><h2>Avisar</h2><div class="form-line"><label for="notice-date">Fecha:</label><input id="notice-date" name="date" type="date" value="2026-11-06" required></div><div class="form-line"><label for="notice-reason">Motivo:</label><select id="notice-reason" name="reason"><option>Indisponibilidad</option><option>Enfermedad</option><option>Cambio de disponibilidad</option><option>Otro</option></select></div><label for="notice-message" class="sr-only">Mensaje del aviso</label><textarea id="notice-message" name="message" required minlength="5" maxlength="1000" placeholder="Explica qué ha ocurrido…">No puedo trabajar porque tengo un examen.</textarea><button type="submit" class="primary">Enviar aviso</button><p class="form-hint">El aviso se enviará al encargado para su revisión.</p></form><div class="panel profile-summary"><div class="hours-breakdown"><span>Total: ${fmt(h.total)} h</span><span>Tarde: ${fmt(h.afternoon)} h</span><span>Noche: ${fmt(h.night)} h</span></div><div class="detail-line"><span>Salario previsto:</span><strong>${euro(h.money)}</strong></div></div></div><p class="footnote">Noviembre 2026 · Datos de tu planificación.</p>`;
+          h = monthStats(p.id),
+          mine = nextShifts(p.id, 3),
+          defaultDate = mine[0]?.date || addDay(DEMO_DAY, 1);
+        return `<header class="page-head tight"><div><h1>Perfil Personal</h1><p class="subtitle">Autogestión de empleado</p></div></header>
+        <div class="stack">
+        <div class="panel profile-card"><div class="profile-identity">${avatar(p, "medium")}<div><p class="person-name">${esc(p.name)}</p><p class="person-sub">${esc(p.job)} · ${fmt(h.total)} h este mes</p></div></div><div class="tags"><span class="tag">Tarifa: ${p.rate == null ? "Sin configurar" : fmt(p.rate) + " €/h"}</span><span class="tag">Rol: ${esc(p.role)}</span></div><p class="profile-availability">Disponibilidad habitual: [ ${p.availability.map((v, i) => (v === 1 ? ["J", "V", "S"][i] : null)).filter(Boolean).join(" · ")} ]</p></div>
+        <div class="panel profile-shifts"><div class="profile-shifts-head"><h2>Tus próximos turnos</h2><small class="muted">${mine.length ? "" : "Sin turnos"}</small></div>${mine
+          .map(
+            (s) =>
+              `<button class="detail-line line-button" data-action="go-day" data-date="${s.date}"><span>${dayLabel(s.date)}</span><span class="shift-when"><span class="quiet">${fmt(duration(s))} h</span><span class="time-chip">${timeRange(s)}</span></span></button>`,
+          )
+          .join("")}</div>
+        <form class="panel notice-form" id="notice-form" novalidate><h2>Avisar</h2><div class="form-line"><label for="notice-date">Fecha:</label><input id="notice-date" name="date" type="date" value="${defaultDate}" required></div><div class="form-line"><label for="notice-reason">Motivo:</label><select id="notice-reason" name="reason"><option>Indisponibilidad</option><option>Enfermedad</option><option>Cambio de disponibilidad</option><option>Otro</option></select></div><label for="notice-message" class="sr-only">Mensaje del aviso</label><textarea id="notice-message" name="message" required minlength="5" maxlength="1000" placeholder="Explica qué ha ocurrido…" aria-describedby="notice-error"></textarea><p class="field-error" id="notice-error" role="alert"></p><button type="submit" class="primary">Enviar aviso</button><p class="form-hint">El aviso se enviará al encargado para su revisión. No cambia tus turnos hasta que lo revise.</p></form>
+        <div class="panel profile-summary"><div class="hours-breakdown"><span>Total: ${fmt(h.total)} h</span><span>Tarde: ${fmt(h.afternoon)} h</span><span>Noche: ${fmt(h.night)} h</span></div><div class="detail-line"><span>Salario previsto:</span><strong>${euro(h.money)}</strong></div></div>
+        </div><p class="footnote">Noviembre 2026 · Datos de tu planificación.</p>`;
       }
       function startEdit() {
         if (!requireManager()) return;
@@ -2706,42 +3843,55 @@
           showToast("Revisa las horas. La entrada y la salida deben ser diferentes.");
           return;
         }
-        const rows = structuredClone(draft);
+        const rows = structuredClone(draft),
+          changes = diffDay(savedDay(), rows);
+        if (!changes.length) {
+          draft = null;
+          render(true);
+          showToast("No había cambios que guardar.");
+          return;
+        }
+        const entry = { id: uid(), date: selectedDate, at: new Date().toISOString(), role: sessionRole, changes };
         if (
           commit((next) => {
             next.shifts = next.shifts.filter((s) => s.date !== selectedDate).concat(rows);
+            next.history = [entry, ...(next.history || [])].slice(0, 300);
           })
         ) {
           draft = null;
           render(true);
-          showToast("Jornada guardada. Horas e importes actualizados.");
+          showToast(`Jornada guardada · ${changes.length} ${changes.length === 1 ? "cambio" : "cambios"}. Horas e importes actualizados.`);
         }
       }
-      function updateTime(input) {
-        if (!draft || !canEdit()) return;
-        const s = draft.find((s) => s.id === input.dataset.id);
-        if (!s || !input.value) return;
-        s[input.dataset.time] = input.value;
-        Object.assign(s, timestamps(s.date, s.start, s.end));
-        $(`[data-duration="${s.id}"]`).textContent = fmt(duration(s)) + " h previstas";
-        $(`[data-nextday="${s.id}"]`).textContent = mins(s.end) < mins(s.start) ? "Salida al día siguiente" : "";
-        $("#day-hours").textContent = fmt(draft.reduce((a, s) => a + duration(s), 0)) + " h";
-      }
       function openModal(kind, data = {}) {
-        if (!modalRoot.innerHTML) modalOpener = document.activeElement;
+        if (!modalRoot.querySelector(".overlay")) modalOpener = document.activeElement;
+        /* Un aviso flotante taparía la hoja: al abrir un modal se retira. */
+        clearTimeout(toastTimer);
+        lastUndo = null;
+        hideToast();
         modal = { kind, ...data };
         drawModal();
       }
-      function closeModal() {
+      /* Cerrar: si un formulario protegido tiene cambios, se pide confirmación en lugar de perderlos. */
+      function closeModal(force = false) {
+        if (!force && modal?.dirty) return showGuard();
         modal = null;
+        const el = modalRoot.firstElementChild;
         modalRoot.innerHTML = "";
+        if (el && motionOK()) {
+          el.classList.add("closing");
+          el.removeAttribute("data-overlay");
+          el.inert = true;
+          $("#app").append(el);
+          setTimeout(() => el.remove(), 240);
+        }
         $("#viewport").inert = false;
         $("#nav").inert = false;
         modalOpener?.isConnected && modalOpener.focus();
         modalOpener = null;
       }
       function sheet(title, body) {
-        return `<div class="overlay" data-overlay="true"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1"><div class="sheet-handle" aria-hidden="true"></div><div class="sheet-header"><h2 id="sheet-title">${title}</h2><button class="icon-button" data-action="close-modal" aria-label="Cerrar">${icon("close")}</button></div>${body}</div></div>`;
+        return `<div class="overlay" data-overlay="true"><div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title" tabindex="-1">${sheetInner(title, body)}</div></div>`;
       }
       function drawModal() {
         let title = "",
@@ -2755,19 +3905,16 @@
             offset = (first.getDay() + 6) % 7,
             days = new Date(year, month + 1, 0).getDate();
           title = "Seleccionar jornada";
-          body = `<div class="calendar-heading"><button class="icon-button" data-action="calendar-prev" aria-label="Mes anterior">${icon("left")}</button><strong>${monthLabel(m.month)}</strong><button class="icon-button" data-action="calendar-next" aria-label="Mes siguiente">${icon("chevron")}</button></div><div class="calendar-grid">${["L", "M", "X", "J", "V", "S", "D"].map((x) => `<span class="calendar-weekday">${x}</span>`).join("")}${"<span></span>".repeat(offset)}${Array.from(
+          body = `<div class="calendar-heading"><button class="icon-button" data-action="calendar-prev" aria-label="Mes anterior">${icon("left")}</button><strong aria-live="polite">${monthLabel(m.month)}</strong><button class="icon-button" data-action="calendar-next" aria-label="Mes siguiente">${icon("chevron")}</button></div><div class="calendar-grid ${m.slide || ""}">${["L", "M", "X", "J", "V", "S", "D"].map((x) => `<span class="calendar-weekday">${x}</span>`).join("")}${"<span></span>".repeat(offset)}${Array.from(
             { length: days },
             (_, i) => {
               const d = `${year}-${String(month + 1).padStart(2, "0")}-${String(i + 1).padStart(2, "0")}`,
                 weekday = dateObj(d).getDay(),
-                scheduled = db.shifts.some(
-                  (s) => s.date === d && (sessionRole !== "worker" || s.employeeId === "alejandro"),
-                );
+                scheduled = db.shifts.some((s) => s.date === d && (sessionRole !== "worker" || s.employeeId === "alejandro"));
               return `<button class="calendar-day ${[4, 5, 6].includes(weekday) ? "habitual" : ""} ${scheduled ? "scheduled" : ""} ${d === selectedDate ? "selected" : ""} ${d === DEMO_DAY ? "today" : ""}" data-action="choose-date" data-date="${d}" aria-label="${dayLabel(d, true)}${scheduled ? ", con turnos" : ""}" ${d === selectedDate ? 'aria-pressed="true"' : ""}>${i + 1}</button>`;
             },
-          ).join(
-            "",
-          )}</div><p class="calendar-legend">J · V · S: actividad habitual. El punto indica turnos programados.</p>`;
+          ).join("")}</div><p class="calendar-legend">J · V · S: actividad habitual. El punto indica turnos programados.</p>`;
+          m.slide = "";
         } else if (m.kind === "add-picker") {
           title = "Añadir trabajador";
           const assigned = new Set((draft || []).map((s) => s.employeeId));
@@ -2776,47 +3923,75 @@
           const p = employee(m.employeeId),
             warning = conflict(p, selectedDate);
           title = "Nuevo turno";
-          body = `<div class="notice-detail-person">${avatar(p, "medium")}<div><p class="person-name">${esc(p.name)}</p><p class="person-sub">${esc(p.job)} · ${dayLabel(selectedDate)}</p></div></div><form id="add-shift-form"><div class="edit-times"><label>Entrada<input type="time" name="start" required value="20:00"></label><label>Salida<input type="time" name="end" required value="04:00"></label></div><p class="footnote" id="new-duration">8 h previstas · salida al día siguiente</p>${warning ? `<div class="warning"><strong>Revisa su disponibilidad</strong>${esc(warning)}</div><label class="check-line"><input type="checkbox" name="override" required>Añadir de todas formas. He revisado la incidencia.</label>` : ""}<div class="action-row"><button type="button" class="secondary" data-action="add-picker">Volver</button><button type="submit" class="primary">Añadir turno</button></div></form>`;
+          body = `${modalPerson(p, `${esc(p.job)} · ${dayLabel(selectedDate)}`)}<form id="add-shift-form" novalidate><div class="edit-times"><label>Entrada<input type="time" name="start" required value="20:00" aria-describedby="shift-error"></label><label>Salida<input type="time" name="end" required value="04:00" aria-describedby="shift-error"></label></div><p class="footnote" id="new-duration">8 h previstas · salida al día siguiente</p><p class="field-error" id="shift-error" role="alert"></p>${warning ? `<div class="warning"><strong>Revisa su disponibilidad</strong>${esc(warning)}</div><label class="check-line"><input type="checkbox" name="override" required>Añadir de todas formas. He revisado la incidencia.</label>` : ""}<div class="action-row"><button type="button" class="secondary" data-action="add-picker">Volver</button><button type="submit" class="primary">Añadir turno</button></div></form>`;
         } else if (m.kind === "edit-draft-shift") {
           const s = draft?.find((s) => s.id === m.id);
-          if (!s) return closeModal();
+          if (!s) return closeModal(true);
           const p = employee(s.employeeId);
           title = "Editar turno";
-          body = `<div class="notice-detail-person">${avatar(p, "medium")}<div><p class="person-name">${esc(p.name)}</p><p class="person-sub">${esc(p.job)} · ${dayLabel(s.date)}</p></div></div><form id="edit-shift-form"><div class="edit-times"><label>Entrada<input type="time" name="start" aria-label="Entrada de ${esc(p.name)}" required value="${s.start}"></label><label>Salida<input type="time" name="end" aria-label="Salida de ${esc(p.name)}" required value="${s.end}"></label></div><p class="footnote" id="new-duration">${fmt(duration(s))} h previstas${mins(s.end) < mins(s.start) ? " · salida al día siguiente" : ""}</p><button type="submit" class="primary add-button">Aplicar al borrador</button></form>`;
+          body = `${modalPerson(p, `${esc(p.job)} · ${dayLabel(s.date)}`)}<form id="edit-shift-form" novalidate><div class="edit-times"><label>Entrada<input type="time" name="start" aria-label="Entrada de ${esc(p.name)}" required value="${s.start}" aria-describedby="shift-error"></label><label>Salida<input type="time" name="end" aria-label="Salida de ${esc(p.name)}" required value="${s.end}" aria-describedby="shift-error"></label></div><p class="footnote" id="new-duration">${fmt(duration(s))} h previstas${overnight(s) ? " · salida al día siguiente" : ""}</p><p class="field-error" id="shift-error" role="alert"></p><button type="submit" class="primary add-button">Aplicar al borrador</button></form>`;
         } else if (m.kind === "shift-detail") {
           const s = db.shifts.find((s) => s.id === m.id);
-          if (!s) return closeModal();
-          const p = employee(s.employeeId);
+          if (!s) return closeModal(true);
+          const p = employee(s.employeeId),
+            warn = canEdit() ? conflict(p, s.date) : "",
+            h = splitHours(s);
           title = "Detalle del turno";
-          body = `<div class="notice-detail-person">${avatar(p, "medium")}<div><p class="person-name">${esc(p.name)}</p><p class="person-sub">${esc(p.job)} · ${dayLabel(s.date)}</p></div></div><div class="panel detail-panel"><div class="detail-line"><span>Horario</span><strong>${s.start}–${s.end}</strong></div><div class="detail-line"><span>Duración prevista</span><strong>${fmt(duration(s))} h</strong></div>${mins(s.end) < mins(s.start) ? `<div class="detail-line"><span>Salida</span><span>${dayLabel(addDay(s.date, 1))}</span></div>` : ""}</div>${canEdit() ? '<button class="primary add-button" data-action="edit-from-detail">Editar jornada</button>' : ""}`;
+          body = `${modalPerson(p, `${esc(p.job)} · ${dayLabel(s.date)}`)}${warn ? `<div class="warning"><strong>Revisa esta asignación</strong>${esc(warn)}</div>` : ""}<div class="panel detail-panel"><div class="detail-line"><span>Horario</span><strong>${s.start}–${s.end}</strong></div><div class="detail-line"><span>Duración prevista</span><strong>${fmt(duration(s))} h</strong></div><div class="detail-line"><span>Tarde · Noche</span><span>${fmt(h.afternoon)} h · ${fmt(h.night)} h</span></div>${overnight(s) ? `<div class="detail-line"><span>Salida</span><span>${dayLabel(addDay(s.date, 1))}</span></div>` : ""}${canMoney() ? `<div class="detail-line"><span>Tarifa del turno</span><span>${s.rate == null ? "Sin tarifa" : `${fmt(s.rate)} €/h · ${euro(h.total * s.rate)}`}</span></div>` : ""}</div>${canMoney() && s.rate !== p.rate ? `<p class="form-hint">Este turno conserva la tarifa con la que se planificó. La tarifa actual de ${esc(p.name)} es ${p.rate == null ? "sin configurar" : fmt(p.rate) + " €/h"}.</p>` : ""}${canEdit() ? '<button class="primary add-button" data-action="edit-from-detail">Editar jornada</button>' : ""}`;
         } else if (m.kind === "notice") {
           const n = db.notices.find((n) => n.id === m.id);
-          if (!n || (sessionRole === "worker" && n.employeeId !== "alejandro")) return closeModal();
-          const p = employee(n.employeeId);
+          if (!n || (sessionRole === "worker" && n.employeeId !== "alejandro")) return closeModal(true);
+          const p = employee(n.employeeId),
+            assigned = db.shifts.find((s) => s.employeeId === n.employeeId && s.date === n.date),
+            open = n.status !== "Resuelto";
           title = "Detalle del aviso";
-          body = `<div class="notice-detail-person">${avatar(p, "medium")}<div><p class="person-name">${esc(p.name)}</p><p class="person-sub">${esc(n.reason)}</p></div></div><span class="status-tag">${esc(n.status)}</span><p class="notice-detail-message">${esc(n.message)}</p><p class="notice-detail-info">Fecha afectada: ${dayLabel(n.date, true)}<br>El aviso no modifica los turnos asignados.</p><button class="secondary add-button" data-action="notice-day" data-date="${n.date}">${icon("calendar")} Ver jornada</button>${canEdit() ? `<div class="action-row"><button class="secondary" data-action="notice-status" data-id="${n.id}" data-status="Revisado" ${n.status !== "Pendiente" ? "disabled" : ""}>Marcar revisado</button><button class="primary" data-action="notice-status" data-id="${n.id}" data-status="Resuelto" ${n.status === "Resuelto" ? "disabled" : ""}>Resolver aviso</button></div>` : ""}`;
+          body = `${modalPerson(p, esc(n.reason))}${noticeStatus(n)}<p class="notice-detail-message">${esc(n.message)}</p><p class="notice-detail-info">Fecha afectada: ${dayLabel(n.date, true)}<br>Enviado ${ago(n.sentAt)}${n.resolvedAt ? ` · resuelto ${ago(n.resolvedAt)}` : ""}<br>${assigned ? `Turno asignado ese día: ${assigned.start}–${assigned.end}. ` : "No tiene turno asignado ese día. "}El aviso no modifica los turnos asignados.</p>${n.reply && !(canEdit() && open) ? `<div class="reply"><p class="detail-label">Respuesta del encargado</p><p>${esc(n.reply)}</p></div>` : ""}<button class="secondary add-button" data-action="go-day" data-date="${n.date}">${icon("calendar")} Ver jornada</button>${
+            canEdit()
+              ? `${open ? `<form id="notice-review" data-guard><label class="field-label">Respuesta para ${esc(p.name)} (opcional)<textarea name="reply" id="notice-reply" maxlength="500" rows="2" placeholder="La verá en su aviso">${esc(n.reply || "")}</textarea></label></form>` : ""}<div class="action-row"><button class="secondary" data-action="notice-status" data-id="${n.id}" data-status="Revisado" ${n.status !== "Pendiente" ? "disabled" : ""}>Marcar revisado</button><button class="primary" data-action="notice-status" data-id="${n.id}" data-status="Resuelto" ${n.status === "Resuelto" ? "disabled" : ""}>Resolver aviso</button></div>`
+              : ""
+          }`;
+        } else if (m.kind === "conflicts") {
+          const list = upcomingConflicts();
+          title = "Turnos por revisar";
+          body = `<p class="sheet-subtitle">Asignaciones que coinciden con un aviso abierto, una excepción o un día sin disponibilidad habitual. Los turnos no se han modificado.</p><div class="stack">${
+            list
+              .map(
+                ({ s, p }) =>
+                  `<button class="employee-row panel" data-action="go-day" data-date="${s.date}">${avatar(p)}<span class="person-text"><span class="person-name">${esc(p.name)} <span class="quiet small">${dayLabel(s.date)} · ${s.start}–${s.end}</span></span><span class="person-sub">${esc(conflictShort(p, s.date))}</span></span>${icon("chevron", "chevron")}</button>`,
+              )
+              .join("") || '<p class="no-results">No hay turnos por revisar.</p>'
+          }</div>`;
+        } else if (m.kind === "history") {
+          const log = db.history.filter((h) => h.date === selectedDate);
+          const label = { add: "Añadido", remove: "Retirado", edit: "Cambiado" };
+          title = "Historial de la jornada";
+          body = `<p class="sheet-subtitle">${dayLabel(selectedDate, true)} · cambios guardados en este navegador.</p><ol class="history-list">${log
+            .map(
+              (h) =>
+                `<li><p class="history-when">${new Intl.DateTimeFormat("es-ES", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" }).format(new Date(h.at)).replace(".", "")} · ${esc(ROLE_LABEL[h.role] || h.role)}</p><ul>${h.changes
+                  .map((c) => {
+                    const p = employee(c.employeeId);
+                    return `<li class="change ${c.kind}"><span class="change-kind">${label[c.kind]}</span><span>${esc(p?.name || "Trabajador eliminado")}</span><span class="change-time">${c.kind === "edit" ? `${c.before} → ${c.after}` : c.after || c.before}</span></li>`;
+                  })
+                  .join("")}</ul></li>`,
+            )
+            .join("")}</ol>`;
         } else if (m.kind === "discard") {
           title = "¿Descartar los cambios?";
           body =
             '<p class="sheet-subtitle">Las modificaciones de esta jornada todavía no se han guardado.</p><div class="action-row"><button class="secondary" data-action="close-modal">Seguir editando</button><button class="primary" data-action="discard-confirm">Descartar</button></div>';
         } else if (m.kind === "period") {
           title = "Seleccionar periodo";
-          body = `<form id="period-form"><div class="period-presets"><button class="pill" type="button" data-action="period-month" data-month="2026-10-01">Octubre</button><button class="pill ${period.from === "2026-11-01" && period.to === "2026-11-30" ? "selected" : ""}" type="button" data-action="period-month" data-month="2026-11-01">Noviembre</button><button class="pill" type="button" data-action="period-week">Semana 02–08 nov</button><button class="pill" type="button" data-action="period-month" data-month="2026-12-01">Diciembre</button></div><label class="field-label">Desde<input type="date" name="from" value="${period.from}" required></label><label class="field-label">Hasta<input type="date" name="to" value="${period.to}" required></label><button class="primary add-button" type="submit">Aplicar periodo</button></form>`;
+          const preset = (from, to) => (period.from === from && period.to === to ? "selected" : "");
+          body = `<form id="period-form"><div class="period-presets"><button class="pill ${preset("2026-10-01", "2026-10-31")}" type="button" data-action="period-month" data-month="2026-10-01">Octubre</button><button class="pill ${preset("2026-11-01", "2026-11-30")}" type="button" data-action="period-month" data-month="2026-11-01">Noviembre</button><button class="pill ${preset("2026-11-02", "2026-11-08")}" type="button" data-action="period-week">Semana 02–08 nov</button><button class="pill ${preset("2026-12-01", "2026-12-31")}" type="button" data-action="period-month" data-month="2026-12-01">Diciembre</button></div><label class="field-label">Desde<input type="date" name="from" value="${period.from}" required></label><label class="field-label">Hasta<input type="date" name="to" value="${period.to}" required></label><p class="field-error" id="period-error" role="alert"></p><button class="primary add-button" type="submit">Aplicar periodo</button></form>`;
         } else if (m.kind === "person-form") {
-          if (!isAdmin()) return closeModal();
+          if (!isAdmin()) return closeModal(true);
           const p = m.employeeId
             ? employee(m.employeeId)
-            : {
-                name: "",
-                job: "Barra",
-                rate: 10,
-                availability: [1, 1, 1],
-                role: "Trabajador",
-                active: true,
-                exceptions: [],
-              };
+            : { name: "", job: "Barra", rate: 10, availability: [1, 1, 1], role: "Trabajador", active: true, exceptions: [] };
+          if (!m.exceptions) m.exceptions = p.exceptions.slice().sort();
           title = m.employeeId ? "Editar trabajador" : "Añadir trabajador";
-          body = `<form id="person-form"><div class="photo-upload">${m.employeeId ? avatar(p, "medium") : icon("user")}<label class="field-label" style="margin:0;flex:1">Fotografía<input type="file" name="photo" id="person-photo" accept="image/png,image/jpeg,image/webp"></label></div><label class="field-label">Nombre<input type="text" name="name" value="${esc(p.name)}" maxlength="60" required></label><label class="field-label">Puesto<select name="job">${["Barra", "Staff", "DJ", "Accesos", "Seguridad", "Guardarropa"].map((j) => `<option ${j === p.job ? "selected" : ""}>${j}</option>`).join("")}</select></label><label class="field-label">Tarifa para nuevos turnos (€/h)<input type="number" name="rate" min="0" max="500" step="0.01" value="${p.rate ?? ""}" placeholder="Sin configurar"></label><p class="form-hint">Los turnos existentes conservan su tarifa.</p><label class="field-label">Permisos<select name="role">${["Administrador", "Administrador parcial", "Trabajador"].map((r) => `<option ${r === p.role ? "selected" : ""}>${r}</option>`).join("")}</select></label><p class="detail-label" style="margin:16px 0 8px">Disponibilidad habitual</p><div class="availability-inputs">${["Jueves", "Viernes", "Sábado"].map((day, i) => `<label>${day}<select name="day${i}"><option value="1" ${p.availability[i] === 1 ? "selected" : ""}>Disponible</option><option value="0" ${p.availability[i] === 0 ? "selected" : ""}>No disponible</option><option value="unknown" ${p.availability[i] === null ? "selected" : ""}>Sin información</option></select></label>`).join("")}</div><label class="field-label">Excepción de disponibilidad (opcional)<input type="date" name="exception" value="${p.exceptions[0] || ""}"></label><label class="check-line"><input type="checkbox" name="active" ${p.active ? "checked" : ""}>Trabajador activo</label><button class="primary add-button" type="submit">Guardar trabajador</button></form>`;
+          body = `<form id="person-form" data-guard novalidate><div class="photo-upload">${m.employeeId ? avatar(p, "medium") : icon("user")}<label class="field-label" style="margin:0;flex:1">Fotografía<input type="file" name="photo" id="person-photo" accept="image/png,image/jpeg,image/webp"></label></div><label class="field-label">Nombre<input type="text" name="name" value="${esc(p.name)}" maxlength="60" required aria-describedby="person-error"></label><p class="field-error" id="person-error" role="alert"></p><label class="field-label">Puesto<select name="job">${["Barra", "Staff", "DJ", "Accesos", "Seguridad", "Guardarropa"].map((j) => `<option ${j === p.job ? "selected" : ""}>${j}</option>`).join("")}</select></label><label class="field-label">Tarifa para nuevos turnos (€/h)<input type="number" name="rate" min="0" max="500" step="0.01" value="${p.rate ?? ""}" placeholder="Sin configurar"></label><p class="form-hint">Los turnos existentes conservan su tarifa.</p><label class="field-label">Permisos<select name="role">${["Administrador", "Administrador parcial", "Trabajador"].map((r) => `<option ${r === p.role ? "selected" : ""}>${r}</option>`).join("")}</select></label><p class="detail-label" style="margin:16px 0 8px">Disponibilidad habitual</p><div class="availability-inputs">${["Jueves", "Viernes", "Sábado"].map((day, i) => `<label>${day}<select name="day${i}"><option value="1" ${p.availability[i] === 1 ? "selected" : ""}>Disponible</option><option value="0" ${p.availability[i] === 0 ? "selected" : ""}>No disponible</option><option value="unknown" ${p.availability[i] === null ? "selected" : ""}>Sin información</option></select></label>`).join("")}</div><div class="field-label exc-field"><span>Excepciones de disponibilidad</span><div class="exc-list" id="exc-list">${excChips(m.exceptions)}</div><div class="exc-add"><input type="date" id="exc-date" aria-label="Fecha de la nueva excepción"><button type="button" class="secondary" data-action="exc-add">Añadir</button></div></div><label class="check-line"><input type="checkbox" name="active" ${p.active ? "checked" : ""}>Trabajador activo</label><button class="primary add-button" type="submit">Guardar trabajador</button></form>`;
         } else if (m.kind === "session") {
           title = "Opciones del prototipo";
           body = `<p class="settings-note">Datos de demostración · Noviembre de 2026.<br>Los cambios se guardan en este navegador.</p><div class="session-options">${[
@@ -2828,18 +4003,30 @@
               ([r, t, desc]) =>
                 `<button class="session-option ${sessionRole === r ? "selected" : ""}" data-action="set-role" data-role="${r}" aria-pressed="${sessionRole === r}"><strong>${t}</strong><span>${desc}</span></button>`,
             )
-            .join(
-              "",
-            )}</div>${isAdmin() ? `<form id="settings-form"><div class="edit-times"><label>Noche desde<input type="time" name="nightStart" value="${db.settings.nightStart}" required></label><label>Noche hasta<input type="time" name="nightEnd" value="${db.settings.nightEnd}" required></label></div><button type="submit" class="secondary add-button">Guardar franja nocturna</button></form>` : ""}<p class="footnote">Simulación de roles sin autenticación real. Este archivo no contiene datos de producción.</p><button class="secondary add-button danger" data-action="reset-ask">Restablecer demostración</button>`;
+            .join("")}</div>${isAdmin() ? `<form id="settings-form"><div class="edit-times"><label>Noche desde<input type="time" name="nightStart" value="${db.settings.nightStart}" required></label><label>Noche hasta<input type="time" name="nightEnd" value="${db.settings.nightEnd}" required></label></div><button type="submit" class="secondary add-button">Guardar franja nocturna</button></form>` : ""}<p class="footnote">Simulación de roles sin autenticación real. Este archivo no contiene datos de producción.</p><button class="secondary add-button danger" data-action="reset-ask">Restablecer demostración</button>`;
         } else if (m.kind === "reset") {
           title = "¿Restablecer la demo?";
           body =
             '<p class="sheet-subtitle">Se reemplazarán los cambios locales por los datos iniciales de demostración.</p><div class="action-row"><button class="secondary" data-action="close-modal">Cancelar</button><button class="primary" data-action="reset-confirm">Restablecer</button></div>';
         }
-        modalRoot.innerHTML = sheet(title, body);
-        $("#viewport").inert = true;
-        $("#nav").inert = true;
-        modalRoot.querySelector(".sheet").focus();
+        /* Si ya hay una hoja abierta, se sustituye su contenido: sin reabrir la animación ni parpadear. */
+        const existing = modalRoot.querySelector(".overlay .sheet");
+        if (existing) {
+          const prevKind = existing.dataset.kind,
+            focusAction = document.activeElement?.closest?.(".sheet") ? document.activeElement.dataset.action : null;
+          existing.innerHTML = sheetInner(title, body);
+          existing.dataset.kind = m.kind;
+          if (prevKind !== m.kind) existing.querySelector(".sheet-body").classList.add("swap-in");
+          const keep = focusAction && existing.querySelector(`[data-action="${focusAction}"]`);
+          (keep || existing).focus();
+          if (prevKind !== m.kind) existing.scrollTop = 0;
+        } else {
+          modalRoot.innerHTML = sheet(title, body);
+          modalRoot.querySelector(".sheet").dataset.kind = m.kind;
+          $("#viewport").inert = true;
+          $("#nav").inert = true;
+          modalRoot.querySelector(".sheet").focus();
+        }
       }
       function pickerRows(assigned, q) {
         return (
@@ -2847,10 +4034,115 @@
             .filter((p) => p.active && !assigned.has(p.id) && matches(p, q))
             .map((p) => {
               const warn = conflict(p, selectedDate);
-              return `<button class="employee-row panel" data-action="pick-person" data-id="${p.id}">${avatar(p)}<span class="person-text"><span class="person-name">${esc(p.name)}</span><span class="employee-pick-sub" style="display:block">${esc(p.job)} · ${warn ? "Revisar disponibilidad" : available(p, selectedDate) === null ? "Disponibilidad sin confirmar" : "Disponible"}</span></span>${warn ? '<span class="unavailable-mark">Aviso</span>' : icon("plus", "chevron")}</button>`;
+              return `<button class="employee-row panel" data-action="pick-person" data-id="${p.id}">${avatar(p)}<span class="person-text"><span class="person-name">${esc(p.name)}</span><span class="employee-pick-sub ${warn ? "has-warning" : ""}">${esc(p.job)} · ${warn ? esc(conflictShort(p, selectedDate)) : available(p, selectedDate) === null ? "Disponibilidad sin confirmar" : "Disponible"}</span></span>${warn ? '<span class="unavailable-mark">Aviso</span>' : icon("plus", "chevron")}</button>`;
             })
             .join("") || '<p class="no-results">No hay más trabajadores para añadir.</p>'
         );
+      }
+      function noticeStatus(n) {
+        const cls = { Pendiente: "pending", Revisado: "reviewed", Resuelto: "resolved" }[n.status] || "";
+        return `<span class="status ${cls}"><i aria-hidden="true"></i>${esc(n.status)}</span>`;
+      }
+      function periodShiftCount() {
+        return listPeriod().length;
+      }
+      /* Exportación local: el archivo se genera en el navegador con los importes previstos del periodo. */
+      function exportCsv() {
+        if (!requireAdmin()) return;
+        const q = (v) => `"${String(v).replace(/"/g, '""')}"`,
+          num = (n) => fmt(n).replace(/\./g, "");
+        const lines = [["Trabajador", "Puesto", "Turnos", "Horas previstas", "Horas tarde", "Horas noche", "Importe previsto (EUR)", "Turnos sin tarifa"].map(q).join(";")];
+        const rows = db.employees
+          .map((p) => ({ p, h: stats(p.id), n: listPeriod().filter((s) => s.employeeId === p.id).length }))
+          .filter(({ p, h }) => p.active || h.total);
+        rows.forEach(({ p, h, n }) => lines.push([p.name, p.job, n, num(h.total), num(h.afternoon), num(h.night), num(h.money), h.missing].map(q).join(";")));
+        const t = stats();
+        lines.push(["Total", "", periodShiftCount(), num(t.total), num(t.afternoon), num(t.night), num(t.money), t.missing].map(q).join(";"));
+        const blob = new Blob(["﻿" + lines.join("\r\n")], { type: "text/csv;charset=utf-8" }),
+          a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `vessel-remuneraciones-previstas_${period.from}_${period.to}.csv`;
+        document.body.append(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        showToast(`CSV generado · ${rows.length} trabajadores · ${period.label}.`);
+      }
+      function showGuard() {
+        const sheetEl = modalRoot.querySelector(".sheet");
+        if (!sheetEl) return;
+        let guard = sheetEl.querySelector(".guard");
+        if (!guard) {
+          sheetEl
+            .querySelector(".sheet-header")
+            .insertAdjacentHTML(
+              "afterend",
+              '<div class="guard" role="alert"><p><strong>Tienes cambios sin guardar.</strong> Si cierras ahora, se perderán.</p><div class="action-row"><button class="secondary" data-action="guard-stay">Seguir editando</button><button class="primary" data-action="guard-discard">Descartar cambios</button></div></div>',
+            );
+          guard = sheetEl.querySelector(".guard");
+          sheetEl.scrollTop = 0;
+        }
+        guard.querySelector("button").focus();
+      }
+      function sheetInner(title, body) {
+        return `<div class="sheet-handle" aria-hidden="true"></div><div class="sheet-header"><h2 id="sheet-title">${title}</h2><button class="icon-button" data-action="close-modal" aria-label="Cerrar">${icon("close")}</button></div><div class="sheet-body">${body}</div>`;
+      }
+      function modalPerson(p, sub) {
+        return `<div class="notice-detail-person">${avatar(p, "medium")}<div><p class="person-name">${esc(p.name)}</p><p class="person-sub">${sub}</p></div></div>`;
+      }
+      function excChips(list) {
+        return list.length
+          ? list
+              .map(
+                (d) =>
+                  `<span class="exc-chip">${dayLabel(d)}<button type="button" data-action="exc-remove" data-date="${d}" aria-label="Quitar la excepción del ${dayLabel(d, true)}">${icon("close")}</button></span>`,
+              )
+              .join("")
+          : '<span class="quiet small">Sin excepciones.</span>';
+      }
+      /* Copia al borrador la misma jornada de la semana anterior. Omite a quien ya está, a inactivos
+         y a quien tenga una incidencia de disponibilidad: esas altas exigen la confirmación individual. */
+      function copyWeek() {
+        if (!draft || !requireManager()) return;
+        const source = addDay(selectedDate, -7),
+          assigned = new Set(draft.map((s) => s.employeeId)),
+          added = [],
+          skipped = [];
+        savedDay(source).forEach((s) => {
+          const p = employee(s.employeeId);
+          if (!p || !p.active || assigned.has(p.id)) return;
+          if (conflict(p, selectedDate)) return skipped.push(p.name);
+          const n = makeShift(selectedDate, p.id, s.start, s.end, p.rate);
+          draft.push(n);
+          added.push(n.id);
+          enterIds.add(n.id);
+        });
+        render(true);
+        const draftRef = draft;
+        const msg = added.length
+          ? `${added.length} ${added.length === 1 ? "turno copiado" : "turnos copiados"} del ${shortDay(source)}.`
+          : `No hay turnos nuevos que copiar del ${shortDay(source)}.`;
+        showToast(
+          msg + (skipped.length ? ` Sin copiar por disponibilidad: ${skipped.join(", ")}.` : ""),
+          added.length
+            ? () => {
+                if (draft === draftRef) {
+                  draft = draft.filter((s) => !added.includes(s.id));
+                  render(true);
+                }
+              }
+            : undefined,
+        );
+      }
+      /* Cambiar de jornada nunca debe dejar un borrador asociado a otra fecha. */
+      function changeDay(date) {
+        if (draft && date !== selectedDate) {
+          openModal("discard", { target: "date", date });
+          return;
+        }
+        selectedDate = date;
+        if (view !== "schedule") go("schedule");
+        else render();
       }
       document.addEventListener("click", (e) => {
         const b = e.target.closest("[data-action]");
@@ -2883,20 +4175,72 @@
           const d = dateObj(modal.month);
           d.setMonth(d.getMonth() + (a === "calendar-next" ? 1 : -1));
           modal.month = iso(d);
+          modal.slide = a === "calendar-next" ? "month-next" : "month-prev";
           drawModal();
         } else if (a === "choose-date") {
+          /* El día elegido se marca un instante antes de cerrar, para que se perciba la selección. */
+          if (modal.choosing) return;
+          modal.choosing = true;
+          $(".calendar-day.selected").forEach((x) => x.classList.remove("selected"));
+          b.classList.add("selected");
+          const date = b.dataset.date;
+          later(130, () => {
+            if (modal?.kind !== "calendar") return;
+            closeModal();
+            changeDay(date);
+          });
+        } else if (a === "day-step") {
+          changeDay(addDay(selectedDate, Number(b.dataset.step)));
+        } else if (a === "day-today") {
+          changeDay(DEMO_DAY);
+        } else if (a === "go-day" || a === "notice-day") {
+          if (draft) return showToast("Guarda o descarta el borrador antes de cambiar de jornada.");
+          if (modal) closeModal(true);
           selectedDate = b.dataset.date;
-          closeModal();
-          render();
+          go("schedule");
+        } else if (a === "copy-week") {
+          if (b.dataset.start && !draft) startEdit();
+          copyWeek();
+        } else if (a === "history") {
+          if (canEdit()) openModal("history");
+        } else if (a === "conflicts") {
+          if (canEdit()) openModal("conflicts");
+        } else if (a === "toggle-resolved") {
+          showResolved = !showResolved;
+          render(true);
+        } else if (a === "export-csv") {
+          exportCsv();
+        } else if (a === "guard-stay") {
+          modalRoot.querySelector(".guard")?.remove();
+          modalRoot.querySelector(".sheet")?.focus();
+        } else if (a === "guard-discard") {
+          closeModal(true);
+        } else if (a === "exc-add") {
+          const input = $("#exc-date"),
+            d = input?.value;
+          if (!d) return input?.focus();
+          if (!modal.exceptions.includes(d)) modal.exceptions = [...modal.exceptions, d].sort();
+          modal.dirty = true;
+          input.value = "";
+          $("#exc-list").innerHTML = excChips(modal.exceptions);
+        } else if (a === "exc-remove") {
+          modal.exceptions = modal.exceptions.filter((d) => d !== b.dataset.date);
+          modal.dirty = true;
+          $("#exc-list").innerHTML = excChips(modal.exceptions);
+          $("#exc-date")?.focus();
         } else if (a === "edit-day") {
           startEdit();
         } else if (a === "cancel-draft") {
           openModal("discard", { target: "schedule" });
         } else if (a === "discard-confirm") {
-          const target = modal.target;
+          const target = modal.target,
+            date = modal.date;
           draft = null;
           closeModal();
-          if (target === "calendar") {
+          if (target === "date") {
+            selectedDate = date;
+            render();
+          } else if (target === "calendar") {
             render();
             openModal("calendar");
           } else go(target);
@@ -2907,11 +4251,15 @@
           const i = draft.findIndex((s) => s.id === b.dataset.id);
           if (i < 0) return;
           const draftRef = draft;
+          const card = b.closest(".shift-card");
+          if (card?.classList.contains("item-leave")) return;
+          card?.classList.add("item-leave");
           const [removed] = draft.splice(i, 1);
-          render(true);
+          later(170, () => draft === draftRef && render(true));
           showToast(employee(removed.employeeId).name + " retirado de este borrador.", () => {
             if (draft === draftRef) {
-              draft.splice(i, 0, removed);
+              draft.splice(Math.min(i, draft.length), 0, removed);
+              enterIds.add(removed.id);
               render(true);
             }
           });
@@ -2919,7 +4267,7 @@
           const fn = lastUndo;
           clearTimeout(toastTimer);
           lastUndo = null;
-          $("#toast-root").innerHTML = "";
+          hideToast();
           fn?.();
         } else if (a === "add-picker") {
           if (!draft || !requireManager()) return;
@@ -2932,7 +4280,7 @@
         } else if (a === "shift-detail") {
           openModal("shift-detail", { id: b.dataset.id });
         } else if (a === "edit-from-detail") {
-          closeModal();
+          closeModal(true);
           startEdit();
         } else if (a === "team-edit") {
           if (!requireAdmin()) return;
@@ -2962,15 +4310,21 @@
         } else if (a === "notice-status") {
           if (!requireManager()) return;
           const id = b.dataset.id,
-            status = b.dataset.status;
+            status = b.dataset.status,
+            replyField = $("#notice-reply"),
+            reply = replyField ? replyField.value.trim() : null;
           if (
             commit((next) => {
               const n = next.notices.find((n) => n.id === id);
               n.status = status;
               if (status === "Resuelto") n.resolvedAt = new Date().toISOString();
+              if (reply !== null) {
+                if (reply) n.reply = reply;
+                else delete n.reply;
+              }
             })
           ) {
-            closeModal();
+            closeModal(true);
             render(true);
             showToast(status === "Resuelto" ? "Aviso resuelto." : "Aviso marcado como revisado.");
           }
@@ -2978,16 +4332,19 @@
           if (canMoney()) openModal("period");
         } else if (a === "period-month") {
           const d = dateObj(b.dataset.month);
+          walletFrom = stats().money;
           period = { from: iso(d), to: iso(new Date(d.getFullYear(), d.getMonth() + 1, 0)), label: monthLabel(iso(d)) };
           closeModal();
           render();
         } else if (a === "period-week") {
+          walletFrom = stats().money;
           period = { from: "2026-11-02", to: "2026-11-08", label: "02–08 nov 2026" };
           closeModal();
           render();
         } else if (a === "set-role") {
           sessionRole = b.dataset.role;
           draft = null;
+          showResolved = false;
           teamEdit = false;
           closeModal();
           view = "home";
@@ -3001,7 +4358,8 @@
             sessionRole = "admin";
             period = { from: "2026-11-01", to: "2026-11-30", label: "Noviembre 2026" };
             selectedDate = DEMO_DAY;
-            closeModal();
+            showResolved = false;
+            closeModal(true);
             view = "home";
             render();
             showToast("Demostración restablecida.");
@@ -3010,7 +4368,11 @@
       });
       document.addEventListener("input", (e) => {
         const t = e.target;
-        if (t.matches("[data-time]")) updateTime(t);
+        if (modal && t.closest("#modal-root form[data-guard]")) modal.dirty = true;
+        t.form?.querySelectorAll(".field-error.visible").forEach((x) => {
+          x.textContent = "";
+          x.classList.remove("visible");
+        });
         if (t.dataset.search === "team") {
           teamQuery = t.value;
           teamPage = 0;
@@ -3053,6 +4415,7 @@
             return;
           }
           modal.photoReady = false;
+          modal.dirty = true;
           const reader = new FileReader();
           const targetModal = modal;
           reader.onload = () => {
@@ -3069,14 +4432,14 @@
       document.addEventListener("submit", (e) => {
         e.preventDefault();
         const f = e.target;
-        if (!f.reportValidity()) return;
+        const inline = ["notice-form", "add-shift-form", "edit-shift-form", "person-form"];
+        if (!inline.includes(f.id) && !f.reportValidity()) return;
         if (f.id === "notice-form") {
           const data = new FormData(f),
             message = String(data.get("message")).trim();
-          if (message.length < 5) {
-            showToast("Escribe un mensaje de al menos 5 caracteres.");
-            return;
-          }
+          if (!data.get("date")) return fieldError("notice-error", "Indica la fecha afectada.", f.elements.date);
+          if (message.length < 5)
+            return fieldError("notice-error", "Escribe un mensaje de al menos 5 caracteres.", f.elements.message);
           if (
             commit((next) =>
               next.notices.unshift({
@@ -3098,18 +4461,18 @@
           const data = new FormData(f),
             p = employee(modal.employeeId);
           if (!p?.active) return;
-          if (conflict(p, selectedDate) && !data.get("override")) return;
+          if (!data.get("start") || !data.get("end"))
+            return fieldError("shift-error", "Indica la hora de entrada y la de salida.", f.elements.start);
           const s = makeShift(selectedDate, p.id, data.get("start"), data.get("end"), p.rate);
-          if (!validateShift(s)) {
-            showToast("La entrada y la salida deben ser diferentes.");
-            return;
-          }
-          if (draft.some((x) => x.employeeId === p.id)) {
-            showToast("Este trabajador ya está en la jornada.");
-            return;
-          }
+          if (!validateShift(s))
+            return fieldError("shift-error", "La entrada y la salida deben ser diferentes.", f.elements.end);
+          if (draft.some((x) => x.employeeId === p.id))
+            return fieldError("shift-error", "Este trabajador ya está en la jornada.");
+          if (conflict(p, selectedDate) && !data.get("override"))
+            return fieldError("shift-error", "Marca la casilla para confirmar que has revisado la incidencia.", f.elements.override);
           draft.push(s);
-          closeModal();
+          enterIds.add(s.id);
+          closeModal(true);
           render(true);
           showToast(p.name + " añadido al borrador.");
         } else if (f.id === "edit-shift-form") {
@@ -3117,18 +4480,18 @@
           const data = new FormData(f),
             s = draft.find((s) => s.id === modal.id);
           if (!s) return;
+          if (!data.get("start") || !data.get("end"))
+            return fieldError("shift-error", "Indica la hora de entrada y la de salida.", f.elements.start);
           const updated = {
             ...s,
             start: data.get("start"),
             end: data.get("end"),
             ...timestamps(s.date, data.get("start"), data.get("end")),
           };
-          if (!validateShift(updated)) {
-            showToast("La entrada y la salida deben ser diferentes.");
-            return;
-          }
+          if (!validateShift(updated))
+            return fieldError("shift-error", "La entrada y la salida deben ser diferentes.", f.elements.end);
           Object.assign(s, updated);
-          closeModal();
+          closeModal(true);
           render(true);
           showToast("Turno actualizado en el borrador.");
         } else if (f.id === "period-form") {
@@ -3136,12 +4499,10 @@
           const data = new FormData(f),
             from = data.get("from"),
             to = data.get("to");
-          if (to < from) {
-            showToast("La fecha final debe ser igual o posterior a la inicial.");
-            return;
-          }
+          if (to < from) return fieldError("period-error", "La fecha final debe ser igual o posterior a la inicial.", f.elements.to);
+          walletFrom = stats().money;
           period = { from, to, label: dayLabel(from) + "–" + dayLabel(to) };
-          closeModal();
+          closeModal(true);
           render();
         } else if (f.id === "person-form") {
           if (!requireAdmin()) return;
@@ -3152,10 +4513,8 @@
           const data = new FormData(f),
             old = modal.employeeId ? employee(modal.employeeId) : null,
             name = String(data.get("name")).trim();
-          if (!name) {
-            showToast("Escribe el nombre del trabajador.");
-            return;
-          }
+          if (!name) return fieldError("person-error", "Escribe el nombre del trabajador.", f.elements.name);
+          if (!f.reportValidity()) return;
           const person = {
             ...(old || {}),
             id: old?.id || uid(),
@@ -3167,7 +4526,7 @@
               data.get("day" + i) === "unknown" ? null : Number(data.get("day" + i)),
             ),
             active: !!data.get("active"),
-            exceptions: data.get("exception") ? [data.get("exception")] : [],
+            exceptions: modal.exceptions.slice(),
             photo: modal.photo || old?.photo || null,
           };
           if (person.id === "alejandro" && !person.active) {
@@ -3181,9 +4540,10 @@
               else next.employees[i] = person;
             })
           ) {
-            closeModal();
+            closeModal(true);
             render(true);
             showToast(old ? "Ficha actualizada." : "Trabajador añadido.");
+            return;
           }
         } else if (f.id === "settings-form") {
           if (!requireAdmin()) return;
@@ -3234,8 +4594,13 @@
           }
         }
       });
+      document.addEventListener("focusin", (e) => {
+        if (e.target.matches(".sheet input:not([type=checkbox]), .sheet textarea, .sheet select") && innerWidth < 700)
+          later(260, () => e.target.isConnected && e.target.scrollIntoView({ block: "nearest", behavior: motionOK() ? "smooth" : "auto" }));
+      });
       let resizeTimer;
       window.addEventListener("resize", () => {
+        placeIndicator(false);
         clearTimeout(resizeTimer);
         resizeTimer = setTimeout(() => {
           teamPage = 0;

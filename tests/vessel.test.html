@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>VESSEL · Pruebas de regresión</title>
+    <style>
+      body { font: 14px/1.5 system-ui, sans-serif; background: #1d1f20; color: #eee; margin: 24px; }
+      h1 { font-size: 20px; margin: 0 0 4px; }
+      p.note { color: #a7adb0; margin: 0 0 16px; }
+      li { margin: 2px 0; }
+      .ok { color: #93c4a2; }
+      .ko { color: #e3998b; }
+      .why { color: #848b8e; font-size: 12px; }
+      #summary { font-weight: 600; margin: 12px 0; }
+      iframe { width: 390px; height: 844px; border: 1px solid #333; }
+    </style>
+  </head>
+  <body>
+    <h1>VESSEL · Pruebas de regresión</h1>
+    <p class="note">
+      Sirve la carpeta del repositorio (<code>python -m http.server 8000</code>) y abre
+      <code>/tests/vessel.test.html</code>. Las pruebas usan el almacenamiento local de este origen y restauran tus datos al terminar.
+    </p>
+    <div id="summary">Ejecutando…</div>
+    <ol id="results"></ol>
+    <iframe id="app" title="Aplicación en prueba"></iframe>
+    <script type="module">
+      /* Cada prueba protege un comportamiento concreto; el motivo figura en "why". */
+      const STORE = "vessel.iter04.v1";
+      const backup = localStorage.getItem(STORE);
+      const frame = document.getElementById("app");
+      let w;
+      const results = [];
+
+      async function load(storage) {
+        if (storage === undefined) localStorage.removeItem(STORE);
+        else localStorage.setItem(STORE, typeof storage === "string" ? storage : JSON.stringify(storage));
+        await new Promise((resolve) => {
+          frame.onload = resolve;
+          frame.src = "../index.html?t=" + Date.now();
+        });
+        w = frame.contentWindow;
+        /* Sin esperas de animación: las pruebas validan lógica, no tiempos. */
+        w.matchMedia = (q) => ({ matches: q.includes("reduce"), addEventListener() {}, removeEventListener() {} });
+      }
+      const app = (expr) => w.eval(expr);
+      const $ = (sel) => w.document.querySelector(sel);
+      const click = (sel) => {
+        const el = $(sel);
+        if (!el) throw Error("No existe " + sel);
+        el.click();
+      };
+      const submit = (sel) => {
+        const f = $(sel);
+        if (!f) throw Error("No existe " + sel);
+        f.requestSubmit();
+      };
+      const fill = (sel, value) => {
+        const el = $(sel);
+        if (!el) throw Error("No existe " + sel);
+        el.value = value;
+        el.dispatchEvent(new w.Event("input", { bubbles: true }));
+      };
+      const tick = (ms = 0) => new Promise((r) => setTimeout(r, ms));
+      function eq(actual, expected, label) {
+        const a = JSON.stringify(actual), e = JSON.stringify(expected);
+        if (a !== e) throw Error(`${label}: esperado ${e}, obtenido ${a}`);
+      }
+      function ok(cond, label) {
+        if (!cond) throw Error(label);
+      }
+      async function test(name, why, fn) {
+        try {
+          await fn();
+          results.push({ name, why, pass: true });
+        } catch (err) {
+          results.push({ name, why, pass: false, err: err.message });
+        }
+      }
+      const snapshot = () => JSON.stringify(app("db"));
+
+      // ---------------------------------------------------------------- Cálculo
+      await load();
+      await test("Duración de turnos que cruzan medianoche", "Base de horas y salarios en jornadas nocturnas", () => {
+        eq(app('duration(makeShift("2026-11-05","x","20:00","04:00",10))'), 8, "20:00–04:00");
+        eq(app('duration(makeShift("2026-11-05","x","23:30","00:15",10))'), 0.75, "23:30–00:15");
+        eq(app('validateShift(makeShift("2026-11-05","x","22:00","22:00",10))'), false, "entrada = salida");
+      });
+      await test("Reparto tarde/noche con la franja 22:00–06:00", "El desglose nocturno no debe cambiar con el rediseño", () => {
+        eq(app('splitHours(makeShift("2026-11-05","x","20:00","04:00",10))'), { total: 8, night: 6, afternoon: 2 }, "20–04");
+        eq(app('splitHours(makeShift("2026-11-05","x","05:00","07:00",10))'), { total: 2, night: 1, afternoon: 1 }, "05–07");
+      });
+      await test("Totales de la demo idénticos a la iteración 04", "Cifras de referencia medidas sobre el original antes de modificarlo", () => {
+        const t = app('stats(null, db.shifts.filter(s => s.date.startsWith("2026-11")))');
+        eq([t.total, t.night, t.money, app("db.shifts.length")], [881.5, 616.5, 9567, 124], "noviembre");
+        eq(app('[monthStats("angel").money, monthStats("miriam").money, monthStats("alejandro").total]'), [950, 1100, 54.5], "por trabajador");
+        eq(app('stats(null, db.shifts.filter(s => s.date >= "2026-11-02" && s.date <= "2026-11-08")).money'), 2178, "semana 02–08");
+      });
+      await test("Cambiar la tarifa no altera turnos ya planificados", "Conservación de tarifas históricas", async () => {
+        app('openModal("person-form", { employeeId: "angel" })');
+        fill('#person-form [name="rate"]', "20");
+        submit("#person-form");
+        eq(app('employee("angel").rate'), 20, "tarifa nueva");
+        eq(app('monthStats("angel").money'), 950, "importe de noviembre sin cambios");
+        click('[data-action="nav"][data-view="schedule"]');
+        app('selectedDate = "2026-11-10"; render()');
+        click('.page [data-action="edit-day"]');
+        app('openModal("add-shift", { employeeId: "angel" })');
+        submit("#add-shift-form");
+        eq(app("draft[0].rate"), 20, "el turno nuevo usa la tarifa nueva");
+      });
+      await test("Cambiar la franja nocturna recalcula noche sin cambiar horas totales", "Ajuste de la franja desde Opciones", async () => {
+        await load();
+        app('openModal("session")');
+        $('#settings-form [name="nightStart"]').value = "00:00";
+        submit("#settings-form");
+        const t = app('stats(null, db.shifts.filter(s => s.date.startsWith("2026-11")))');
+        eq(t.total, 881.5, "horas totales");
+        ok(t.night < 616.5, "las horas nocturnas bajan al acortar la franja");
+      });
+
+      // ---------------------------------------------------------------- Datos
+      await test("Los datos guardados por la iteración 04 (v1) se migran sin perderse", "Usuarios con datos antiguos en el navegador", async () => {
+        await load();
+        const v1 = JSON.parse(snapshot());
+        v1.version = 1;
+        delete v1.history;
+        v1.shifts.find((s) => s.date === "2026-11-05" && s.employeeId === "samir").start = "22:15";
+        await load(v1);
+        eq(app("db.version"), 2, "versión");
+        eq(app("db.history"), [], "historial vacío");
+        eq(app('db.shifts.find(s => s.date === "2026-11-05" && s.employeeId === "samir").start'), "22:15", "cambio del usuario conservado");
+      });
+      await test("Datos corruptos no bloquean la aplicación", "Resiliencia ante almacenamiento dañado", async () => {
+        await load("{no es json");
+        eq(app("db.shifts.length"), 124, "se cargan los datos de demostración");
+      });
+
+      // ---------------------------------------------------------------- Horarios
+      await test("Cancelar un borrador deja la jornada intacta", "Edición diaria con borrador", async () => {
+        await load();
+        const before = snapshot();
+        click('[data-action="nav"][data-view="schedule"]');
+        click('.page [data-action="edit-day"]');
+        click('[data-action="remove-shift"]');
+        await tick(10);
+        eq(app("draft.length"), 5, "retirado del borrador");
+        click('[data-action="cancel-draft"]');
+        click('[data-action="discard-confirm"]');
+        eq(app("draft"), null, "sin borrador");
+        eq(snapshot(), before, "datos sin cambios");
+      });
+      await test("Salir de Horarios con cambios pide confirmación", "Evitar pérdida accidental de cambios", async () => {
+        click('.page [data-action="edit-day"]');
+        click('[data-action="remove-shift"]');
+        click('[data-action="nav"][data-view="team"]');
+        eq(app("modal?.kind"), "discard", "modal de descarte");
+        click('.sheet [data-action="close-modal"]');
+        eq(app("view"), "schedule", "sigue en Horarios");
+        ok(app("draft !== null"), "borrador conservado");
+      });
+      await test("Cambiar de día durante una edición nunca mezcla fechas", "Integridad de la jornada al usar las flechas de día", async () => {
+        const before = snapshot();
+        click('[data-action="day-step"][data-step="1"]');
+        eq(app("modal?.kind"), "discard", "pide descartar");
+        eq(app("selectedDate"), "2026-11-05", "la fecha no cambia antes de confirmar");
+        click('[data-action="discard-confirm"]');
+        eq(app("selectedDate"), "2026-11-06", "fecha nueva");
+        eq(app("draft"), null, "borrador descartado");
+        eq(snapshot(), before, "turnos sin cambios");
+      });
+      await test("Guardar registra el historial con el tipo de cada cambio", "Historial visual de cambios", async () => {
+        await load();
+        click('[data-action="nav"][data-view="schedule"]');
+        click('.page [data-action="edit-day"]');
+        click('[data-action="remove-shift"][data-id="' + app('draft.find(s => s.employeeId === "sergio").id') + '"]');
+        app('draft.find(s => s.employeeId === "angel").end = "05:00"; Object.assign(draft.find(s => s.employeeId === "angel"), timestamps("2026-11-05", "20:00", "05:00"))');
+        click('[data-action="save-day"]');
+        const h = app("db.history[0]");
+        eq(h.date, "2026-11-05", "fecha");
+        eq(h.changes.map((c) => c.kind + ":" + c.employeeId).sort(), ["edit:angel", "remove:sergio"], "cambios");
+        eq(JSON.parse(localStorage.getItem(STORE)).history.length, 1, "persistido");
+        ok($('[data-action="history"]'), "enlace al historial visible");
+      });
+      await test("Guardar sin cambios no crea entradas vacías", "Historial limpio", async () => {
+        click('.page [data-action="edit-day"]');
+        click('[data-action="save-day"]');
+        eq(app("db.history.length"), 1, "sigue habiendo una entrada");
+      });
+      await test("Copiar la semana anterior respeta disponibilidad y no duplica", "Copiar planificación sin saltarse avisos", async () => {
+        await load();
+        click('[data-action="nav"][data-view="schedule"]');
+        app('selectedDate = "2026-11-12"; render()');
+        click('.page [data-action="edit-day"]');
+        app("draft = []; render(true)");
+        click('.draft-actions [data-action="copy-week"]');
+        const ids = app("draft.map(s => s.employeeId).sort()");
+        eq(ids, ["alejandro", "angel", "filipa", "miriam", "sergio"], "copiados (Samir no está disponible el jueves)");
+        eq(app('draft.find(s => s.employeeId === "miriam").start'), "21:00", "conserva horario de origen");
+        eq(app('draft.every(s => s.date === "2026-11-12" && s.rate === employee(s.employeeId).rate)'), true, "fecha y tarifa actuales");
+        click('.draft-actions [data-action="copy-week"]');
+        eq(app("draft.length"), 5, "sin duplicados");
+      });
+      await test("Añadir a alguien con incidencia exige confirmación explícita", "Distinción entre disponibilidad y asignación", async () => {
+        await load();
+        click('[data-action="nav"][data-view="schedule"]');
+        click('.page [data-action="edit-day"]');
+        app('openModal("add-shift", { employeeId: "lucia" })');
+        submit("#add-shift-form");
+        eq(app("draft.length"), 6, "no se añade sin confirmar");
+        ok($("#shift-error").textContent.includes("revisado"), "error junto al formulario");
+        $('#add-shift-form [name="override"]').checked = true;
+        submit("#add-shift-form");
+        eq(app("draft.length"), 7, "añadida tras confirmar");
+      });
+      await test("Horas inválidas se explican junto al campo", "Validación cercana a la acción", async () => {
+        app('openModal("edit-draft-shift", { id: draft[0].id })');
+        const before = app("JSON.stringify(draft[0])");
+        fill('#edit-shift-form [name="end"]', app("draft[0].start"));
+        submit("#edit-shift-form");
+        ok($("#shift-error").textContent.includes("diferentes"), "mensaje visible");
+        eq(app("JSON.stringify(draft[0])"), before, "borrador intacto");
+        fill('#edit-shift-form [name="end"]', "06:00");
+        submit("#edit-shift-form");
+        eq(app("duration(draft[0])"), 10, "20:00–06:00 recalculado");
+      });
+
+      // ---------------------------------------------------------------- Permisos
+      await test("Vista de trabajador: solo sus turnos y sin datos de compañeros", "Simulación de permisos", async () => {
+        await load();
+        app('sessionRole = "worker"; render()');
+        ok(!$('[data-action="conflicts"]'), "sin aviso de conflictos");
+        click('[data-action="nav"][data-view="schedule"]');
+        eq(app("scheduleRows().map(s => s.employeeId)"), ["alejandro"], "solo Alejandro");
+        click('[data-action="nav"][data-view="team"]');
+        ok(!$(".next-shift"), "sin próximos turnos de compañeros");
+        click('[data-action="nav"][data-view="wallet"]');
+        ok($(".page-wallet .empty") && !$("#wallet-total"), "Cartera restringida");
+      });
+      await test("Administrador parcial: edita horarios, sin acceso económico", "Simulación de permisos", async () => {
+        app('sessionRole = "partial"; render()');
+        ok(app("canEdit()") && !app("canMoney()"), "permisos");
+        click('[data-action="nav"][data-view="wallet"]');
+        ok(!$('[data-action="export-csv"]'), "sin exportación");
+        app("exportCsv()");
+        ok($(".toast")?.textContent.includes("administrador"), "acción bloqueada");
+      });
+
+      // ---------------------------------------------------------------- Avisos
+      await test("Enviar un aviso no modifica los turnos", "Avisos y horarios son independientes", async () => {
+        await load();
+        const shifts = app("JSON.stringify(db.shifts)");
+        click('[data-action="nav"][data-view="profile"]');
+        submit("#notice-form");
+        ok($("#notice-error").textContent.length > 0, "mensaje vacío rechazado junto al campo");
+        fill("#notice-message", "Tengo una boda ese día.");
+        submit("#notice-form");
+        eq(app("db.notices[0].status"), "Pendiente", "nuevo aviso pendiente");
+        eq(app("JSON.stringify(db.shifts)"), shifts, "turnos intactos");
+      });
+      await test("Resolver con respuesta guarda la nota y retira el conflicto", "Revisión de avisos", async () => {
+        await load();
+        eq(app('upcomingConflicts().map(c => c.p.id)'), ["samir", "alejandro", "sergio"], "conflictos iniciales");
+        app('openModal("notice", { id: "notice-1" })');
+        fill("#notice-reply", "Te cubre Pablo.");
+        click('[data-action="notice-status"][data-status="Resuelto"]');
+        const n = app('db.notices.find(n => n.id === "notice-1")');
+        eq([n.status, n.reply], ["Resuelto", "Te cubre Pablo."], "estado y respuesta");
+        ok(n.resolvedAt, "fecha de resolución");
+        eq(app('upcomingConflicts().map(c => c.p.id)'), ["samir", "sergio"], "conflicto retirado");
+        eq(app("db.shifts.length"), 124, "turnos intactos");
+      });
+      await test("Cerrar un formulario con cambios pide confirmación", "Evitar pérdida accidental al cerrar un modal", async () => {
+        app('openModal("notice", { id: "notice-2" })');
+        fill("#notice-reply", "Mejórate.");
+        click('[data-action="close-modal"]');
+        ok($(".guard"), "aviso de cambios sin guardar");
+        eq(app("modal?.kind"), "notice", "el modal sigue abierto");
+        click('[data-action="guard-discard"]');
+        eq(app("modal"), null, "cerrado tras confirmar");
+        eq(app('db.notices.find(n => n.id === "notice-2").reply'), undefined, "nada guardado");
+      });
+
+      // ---------------------------------------------------------------- Equipo
+      await test("Varias excepciones de disponibilidad se conservan", "El formulario original solo guardaba la primera", async () => {
+        await load();
+        app('openModal("person-form", { employeeId: "angel" })');
+        fill("#exc-date", "2026-11-20");
+        click('[data-action="exc-add"]');
+        submit("#person-form");
+        eq(app('employee("angel").exceptions'), ["2026-11-13", "2026-11-20"], "dos excepciones");
+        app('openModal("person-form", { employeeId: "angel" })');
+        submit("#person-form");
+        eq(app('employee("angel").exceptions'), ["2026-11-13", "2026-11-20"], "siguen tras guardar otra vez");
+        eq(app('conflict(employee("angel"), "2026-11-20")'), "Tiene una excepción de disponibilidad para esta fecha.", "afecta a la planificación");
+      });
+
+      // ---------------------------------------------------------------- Cartera
+      await test("La búsqueda de Cartera conserva el total general", "Comportamiento documentado en la iteración 04", async () => {
+        await load();
+        click('[data-action="nav"][data-view="wallet"]');
+        fill("#wallet-search", "ser");
+        eq(w.document.querySelectorAll("#wallet-rows tr").length, 1, "una fila");
+        ok($("#wallet-total").textContent.includes("9.567"), "total general intacto");
+      });
+      await test("El CSV exportado cuadra con la Cartera", "Exportación local de importes previstos", async () => {
+        let blob;
+        w.URL.createObjectURL = (b) => ((blob = b), "blob:prueba");
+        w.URL.revokeObjectURL = () => {};
+        w.HTMLAnchorElement.prototype.click = function () {};
+        click('[data-action="export-csv"]');
+        const text = await blob.text();
+        const lines = text.trim().split("\r\n");
+        eq(lines.length, 14, "cabecera + 12 trabajadores + total");
+        ok(lines[13].includes('"9567"') && lines[13].includes('"881,5"'), "fila total");
+      });
+
+      // ---------------------------------------------------------------- Informe
+      if (backup === null) localStorage.removeItem(STORE);
+      else localStorage.setItem(STORE, backup);
+      const passed = results.filter((r) => r.pass).length;
+      document.getElementById("summary").textContent = `${passed}/${results.length} pruebas superadas`;
+      document.getElementById("summary").className = passed === results.length ? "ok" : "ko";
+      document.getElementById("results").innerHTML = results
+        .map((r) => `<li class="${r.pass ? "ok" : "ko"}">${r.pass ? "✓" : "✗"} ${r.name} <span class="why">· ${r.why}</span>${r.err ? `<br><small>${r.err}</small>` : ""}</li>`)
+        .join("");
+      window.__results = results;
+    </script>
+  </body>
+</html>
