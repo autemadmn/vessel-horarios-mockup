@@ -1,0 +1,37 @@
+/*
+  Subconjunto de Open Props 1.7.23 · https://open-props.style
+  MIT License · Copyright (c) 2021 Adam Argyle
+  Solo se copian los valores que usa VESSEL (escala de tamaños, tipografía, curvas y radios).
+  Los colores de Open Props no se incluyen: la paleta es propia (tokens --v-* en vessel.css).
+*/
+:where(html) {
+  --font-system-ui: system-ui, sans-serif;
+
+  --size-1: 0.25rem;
+  --size-2: 0.5rem;
+  --size-3: 1rem;
+  --size-4: 1.25rem;
+  --size-5: 1.5rem;
+  --size-6: 1.75rem;
+  --size-7: 2rem;
+  --size-8: 3rem;
+
+  --font-weight-4: 400;
+  --font-weight-5: 500;
+  --font-weight-6: 600;
+  --font-weight-7: 700;
+  --font-weight-8: 800;
+  --font-lineheight-0: 1.1;
+  --font-lineheight-1: 1.25;
+  --font-lineheight-2: 1.375;
+  --font-lineheight-3: 1.5;
+
+  --ease-3: cubic-bezier(0.25, 0, 0.3, 1);
+  --ease-4: cubic-bezier(0.25, 0, 0.2, 1);
+  --ease-out-3: cubic-bezier(0, 0, 0.3, 1);
+  --ease-out-4: cubic-bezier(0, 0, 0.1, 1);
+  --ease-in-2: cubic-bezier(0.5, 0, 1, 1);
+
+  --radius-2: 5px;
+  --radius-round: 1e5px;
+}

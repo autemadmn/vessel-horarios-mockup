@@ -300,7 +300,7 @@
         await load();
         click('[data-action="nav"][data-view="wallet"]');
         fill("#wallet-search", "ser");
-        eq(w.document.querySelectorAll("#wallet-rows tr").length, 1, "una fila");
+        eq(w.document.querySelectorAll("#wallet-rows .money-row").length, 1, "una fila");
         ok($("#wallet-total").textContent.includes("9.567"), "total general intacto");
       });
       await test("El CSV exportado cuadra con la Cartera", "Exportación local de importes previstos", async () => {
