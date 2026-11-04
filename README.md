@@ -28,7 +28,7 @@ Abre después `http://localhost:8000`.
 - Cartera con búsqueda, selección de periodo, indicadores de horas y exportación CSV; el filtro de búsqueda conserva el total general.
 - Envío y revisión de avisos, con respuesta del encargado, sin modificar automáticamente los horarios.
 - Perfil con los próximos turnos del trabajador.
-- Diseño adaptativo de 320 px a escritorio, con desplazamiento vertical natural en móvil (Equipo y Cartera solo se paginan a partir de 20 personas) y animaciones que respetan `prefers-reduced-motion`.
+- Inicio cabe en una pantalla sin desplazamiento (de 320 × 568 a escritorio). Diseño adaptativo de 320 px a escritorio, con desplazamiento vertical natural en el resto de secciones (Equipo y Cartera solo se paginan a partir de 20 personas) y animaciones que respetan `prefers-reduced-motion`.
 - Avatares ilustrados DiceBear (Lorelei, CC0) generados en local; una foto subida tiene prioridad.
 - Persistencia en el almacenamiento local del navegador (los datos de la iteración 04 se migran automáticamente).
 

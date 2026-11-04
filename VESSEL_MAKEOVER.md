@@ -39,7 +39,7 @@ Los archivos son `css/vessel.css` (tokens `--v-*`, componentes, pantallas y movi
 | Pantalla | Cambio |
 |---|---|
 | Dock | Iconos Lucide de 24 px con etiqueta. Una cápsula hundida se desliza hasta la pestaña activa, con una línea morada de 2 px. En escritorio, el dock flota como una pieza elevada. La pestaña Cartera restringida muestra un candado. |
-| Inicio | Depende del rol. El **encargado** ve la próxima jornada con la lista de quién viene y a qué hora entra cada uno (ordenada por entrada), el total de personas y horas y un botón grande "Ver horario". El **trabajador** ve su propio horario en grande. Debajo van "Turnos por revisar" (con un contador), las horas previstas del mes y los avisos. El rol de la demostración aparece bajo la fecha. |
+| Inicio | **Cabe en una pantalla, sin desplazamiento**, desde 320 × 568 hasta escritorio. El **encargado** ve la próxima jornada con quién viene y a qué hora entra (dos columnas, hasta seis personas) y un botón grande "Ver horario". El **trabajador** ve su turno en grande. Debajo hay dos fichas, "Turnos por revisar" y "Horas del mes", y los avisos abiertos en filas compactas: se muestran los que caben y "Ver todos" abre la lista completa, con el conmutador de resueltos. En pantallas bajas se compacta automáticamente. |
 | Horarios | Selector de fecha grande con flechas de 48 px. Tarjetas de turno con el nombre en 17 px y la hora en 17 px debajo, y la tarjeta entera pulsable. En edición, la hora aparece como campo hundido con lápiz y la X de retirar va aparte. Guardar y Cancelar están en una barra fija y grande al pie. |
 | Selector de horas | Campo de 26 px con cuatro horas habituales a un toque (entrada de 20:00 a 23:00 y salida de 02:00 a 06:00). La duración se recalcula al momento. |
 | Equipo | Directorio con avatar de 48 px, puesto y próximo turno (solo para gestión). La disponibilidad se muestra con icono y día (✓ Jue, ✕ ~~Jue~~, ? Jue) en lugar de puntos de color. En móvil ya no se pagina por debajo de 20 personas. |
@@ -79,6 +79,6 @@ Los archivos son `css/vessel.css` (tokens `--v-*`, componentes, pantallas y movi
 
 - No se ha probado en dispositivos físicos iOS o Android, en Safari o Firefox, ni con lectores de pantalla.
 - El render completo de Equipo y Cartera en móvil sube de unos 5 ms a unos 20 ms en Chromium de escritorio, porque se pintan los 12 trabajadores (antes 5 por página) y cada uno lleva su avatar. Se puede reducir si la plantilla crece mucho.
-- En móvil, Inicio, Horarios, Equipo, Cartera y Perfil necesitan desplazarse. Es intencionado: se prioriza el tamaño de textos y botones.
+- Inicio no se desplaza; Horarios, Equipo, Cartera y Perfil sí, a propósito, para no reducir textos ni botones. Si una pantalla fuera tan baja que ni lo esencial de Inicio cupiese, se permite desplazar como último recurso.
 - El trazo del icono del dock y el color del disco de los avatares (`--v-avatar-bg`) son decisiones estéticas fáciles de ajustar desde los tokens.
 - Para cambiar el estilo de avatar basta con editar `tools/generate-avatars.mjs` y volver a generarlos.

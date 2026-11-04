@@ -537,6 +537,8 @@
         };
         screen.innerHTML = `<section class="page page-${view}" aria-label="${{ home: "Inicio", schedule: "Horarios", team: "Equipo", detail: "Ficha del trabajador", wallet: "Cartera", profile: "Perfil personal" }[view]}">${renderers[view]()}</section>`;
         viewport.scrollTop = keepScroll ? y : 0;
+        if (view === "home") fitHome();
+        else viewport.classList.remove("is-fixed");
         /* Transiciones breves: cambio de sección, cambio de día y elementos recién añadidos. */
         if (lastView !== null && view !== lastView) screen.firstElementChild.classList.add("page-enter");
         else if (view === "schedule" && lastDate && selectedDate !== lastDate)
@@ -581,6 +583,18 @@
         );
         return rows.length ? rows.map((s) => s.date).sort()[0] : null;
       }
+      /* Avisos visibles para el rol, ordenados por estado y fecha de envío. */
+      function sortedNotices() {
+        const rank = { Pendiente: 0, Revisado: 1, Resuelto: 2 };
+        return db.notices
+          .filter((n) => sessionRole !== "worker" || n.employeeId === "alejandro")
+          .sort((a, b) => rank[a.status] - rank[b.status] || b.sentAt.localeCompare(a.sentAt));
+      }
+      function noticeCard(n) {
+        const p = employee(n.employeeId);
+        return `<button class="notice-card ${n.status === "Resuelto" ? "is-resolved" : ""}" data-action="notice" data-id="${n.id}">${avatar(p)}<span class="person-text"><span class="person-name">${esc(p.name)}</span><span class="notice-message">${esc(n.message)}</span><span class="notice-meta">${noticeStatus(n)}<span>${esc(n.reason)} · ${dayLabel(n.date)}</span></span></span>${icon("chevron", "chev")}</button>`;
+      }
+      /* Inicio cabe en una pantalla: el encargado ve quién entra y a qué hora; el trabajador, su turno. */
       function homeView() {
         const worker = sessionRole === "worker",
           next = upcoming(),
@@ -591,47 +605,71 @@
           last = rows.slice().sort((a, b) => b.endAt.localeCompare(a.endAt))[0],
           endsNextDay = last && iso(new Date(last.endAt)) !== next,
           dayHours = rows.reduce((a, s) => a + duration(s), 0),
-          conflicts = canEdit() ? upcomingConflicts() : [];
-        let notices = db.notices.filter((n) => !worker || n.employeeId === "alejandro");
-        const rank = { Pendiente: 0, Revisado: 1, Resuelto: 2 };
-        notices.sort((a, b) => rank[a.status] - rank[b.status] || b.sentAt.localeCompare(a.sentAt));
-        const resolved = notices.filter((n) => n.status === "Resuelto").length,
-          visible = showResolved ? notices : notices.filter((n) => n.status !== "Resuelto"),
-          pending = notices.filter((n) => n.status === "Pendiente").length;
-        /* Jerarquía: marca y fecha → próxima jornada con su acción → equipo asignado → avisos. */
+          conflicts = canEdit() ? upcomingConflicts() : [],
+          open = sortedNotices().filter((n) => n.status !== "Resuelto"),
+          pending = open.filter((n) => n.status === "Pendiente").length;
         const ordered = rows
             .slice()
             .sort((a, b) => a.startAt.localeCompare(b.startAt) || employee(a.employeeId).name.localeCompare(employee(b.employeeId).name)),
-          roster = ordered
-            .slice(0, 8)
-            .map((s) => {
-              const p = employee(s.employeeId);
-              return `<li>${avatar(p, "xs")}<span class="roster-name">${esc(p.name)}</span><span class="roster-time">${s.start}</span></li>`;
-            })
-            .join("");
+          shown = ordered.length > 6 ? ordered.slice(0, 5) : ordered,
+          roster =
+            shown
+              .map((s) => {
+                const p = employee(s.employeeId);
+                return `<li>${avatar(p, "xs")}<span class="roster-text"><span class="roster-name">${esc(p.name)}</span><span class="roster-time">${s.start}</span></span></li>`;
+              })
+              .join("") + (ordered.length > 6 ? `<li class="roster-rest">y ${ordered.length - 5} más</li>` : "");
         const hero = next
           ? `<section class="hero" aria-labelledby="hero-title"><div class="hero-top"><p class="eyebrow">${worker ? "Tu próximo turno" : "Próxima jornada"}</p>${next === DEMO_DAY ? '<span class="tag tag-accent">Hoy</span>' : ""}</div><h2 class="hero-date" id="hero-title">${dayLabel(next, true)}</h2>${
-            worker
-              ? `<p class="hero-time">${first}–${last.end}${endsNextDay ? '<span class="next-day" title="Termina al día siguiente">+1</span>' : ""}</p><p class="hero-sub">${fmt(dayHours)} h previstas</p>`
-              : `<p class="hero-sub">${count} ${count === 1 ? "persona" : "personas"} · ${fmt(dayHours)} h previstas</p><div class="roster-head" aria-hidden="true"><span>Equipo</span><span>Entrada</span></div><ul class="roster" aria-label="Equipo y hora de entrada">${roster}</ul>${ordered.length > 8 ? `<p class="roster-more">y ${ordered.length - 8} más</p>` : ""}`
-          }<button class="primary block" data-action="upcoming">${icon("schedule")} ${worker ? "Ver mi horario" : "Ver horario"}</button></section>`
-          : `<section class="hero"><p class="eyebrow">${worker ? "Tus turnos" : "Próxima jornada"}</p><h2 class="hero-date">Sin jornadas programadas</h2><p class="hero-empty">${canEdit() ? "Planifica una fecha desde Horarios." : "Cuando te asignen un turno aparecerá aquí."}</p><button class="primary block" data-action="nav" data-view="schedule">${icon("schedule")} Ir a Horarios</button></section>`;
-        return `<header class="home-head"><button class="icon-button home-options" data-action="session" aria-label="Opciones del prototipo">${icon("settings")}</button><svg class="wordmark" viewBox="0 0 191 40" role="img" aria-label="VESSEL"><text x="4" y="31">VESSEL</text><text x="4" y="31" style="stroke-width:.35;fill:#1a1b1e;transform:translate(.25px,.25px) scale(.99);transform-origin:center">VESSEL</text></svg><p class="home-date">${dayLabel(DEMO_DAY, true)}</p><p class="role-line">Vista de ${esc(sessionRole === "worker" ? "trabajador · Alejandro" : ROLE_LABEL[sessionRole].toLowerCase())}</p></header>
+              worker
+                ? `<p class="hero-time">${first}–${last.end}${endsNextDay ? '<span class="next-day" title="Termina al día siguiente">+1</span>' : ""}</p><p class="hero-sub">${fmt(dayHours)} h previstas</p>`
+                : `<p class="hero-sub">${count} ${count === 1 ? "persona" : "personas"} · entrada de cada una</p><ul class="roster" aria-label="Equipo y hora de entrada">${roster}</ul>`
+            }<button class="primary block" data-action="upcoming">${icon("schedule")} ${worker ? "Ver mi horario" : "Ver horario"}</button></section>`
+          : `<section class="hero"><p class="eyebrow">${worker ? "Tus turnos" : "Próxima jornada"}</p><h2 class="hero-date">Sin jornadas programadas</h2><p class="hero-sub">${canEdit() ? "Planifica una fecha desde Horarios." : "Cuando te asignen un turno aparecerá aquí."}</p><button class="primary block" data-action="nav" data-view="schedule">${icon("schedule")} Ir a Horarios</button></section>`;
+        const hoursTile = `<button class="tile" data-action="nav" data-view="${canMoney() ? "wallet" : "profile"}"><strong class="tile-value">${fmt(total.total)} h</strong><span class="tile-label">${worker ? "Tus horas del mes" : "Horas del mes"}</span></button>`,
+          conflictTile = conflicts.length
+            ? `<button class="tile" data-action="conflicts"><strong class="tile-value">${conflicts.length}</strong><span class="tile-label">${conflicts.length === 1 ? "Turno por revisar" : "Turnos por revisar"}</span></button>`
+            : "";
+        return `<header class="home-head"><div><svg class="wordmark" viewBox="0 0 191 40" role="img" aria-label="VESSEL"><text x="4" y="31">VESSEL</text><text x="4" y="31" style="stroke-width:.35;fill:#1a1b1e;transform:translate(.25px,.25px) scale(.99);transform-origin:center">VESSEL</text></svg><p class="home-date">${dayLabel(DEMO_DAY, true)} · <span>${esc(sessionRole === "worker" ? "Alejandro" : ROLE_LABEL[sessionRole])}</span></p></div><button class="icon-button home-options" data-action="session" aria-label="Opciones del prototipo">${icon("settings")}</button></header>
         ${hero}
-        ${conflicts.length ? `<button class="conflict-banner" data-action="conflicts"><span class="count-badge">${conflicts.length}</span><span><strong>${conflicts.length === 1 ? "Turno por revisar" : "Turnos por revisar"}</strong><small>Personas asignadas que han avisado o no suelen estar disponibles</small></span>${icon("chevron", "chev")}</button>` : ""}
-        <button class="list-link" data-action="nav" data-view="${canMoney() ? "wallet" : "profile"}"><span class="list-link-text"><span>${worker ? "Tus horas previstas" : "Total horas previstas"}</span><small>Noviembre 2026</small></span><strong class="list-link-value">${fmt(total.total)} h</strong>${icon("chevron", "chev")}</button>
-        <div class="section-heading"><h2>Avisos</h2><small>${pending ? `${pending} ${pending === 1 ? "pendiente" : "pendientes"}` : "Sin pendientes"}</small></div>
-        <div class="stack">${
-          visible.length
-            ? visible
+        <div class="tiles ${conflictTile ? "" : "single"}">${conflictTile}${hoursTile}</div>
+        <section class="home-notices" aria-labelledby="notices-title"><div class="section-heading"><h2 id="notices-title">Avisos${pending ? ` <span class="heading-count">${pending} ${pending === 1 ? "pendiente" : "pendientes"}</span>` : ""}</h2><button class="text-button" data-action="all-notices" id="all-notices">Ver todos</button></div>
+        <div class="notice-rows" id="notice-rows">${
+          open.length
+            ? open
                 .map((n) => {
                   const p = employee(n.employeeId);
-                  return `<button class="notice-card ${n.status === "Resuelto" ? "is-resolved" : ""}" data-action="notice" data-id="${n.id}">${avatar(p)}<span class="person-text"><span class="person-name">${esc(p.name)}</span><span class="notice-message">${esc(n.message)}</span><span class="notice-meta">${noticeStatus(n)}<span>${esc(n.reason)} · ${dayLabel(n.date)}</span></span></span>${icon("chevron", "chev")}</button>`;
+                  return `<button class="notice-row" data-action="notice" data-id="${n.id}">${avatar(p, "sm")}<span class="person-text"><span class="notice-row-top"><span class="person-name">${esc(p.name)}</span>${noticeStatus(n)}</span><span class="person-sub">${esc(n.reason)} · ${dayLabel(n.date)}</span></span>${icon("chevron", "chev")}</button>`;
                 })
                 .join("")
             : `<p class="empty-line">${icon("check")} No hay avisos abiertos.</p>`
-        }</div>
-        ${resolved ? `<div class="home-actions"><button class="text-button" data-action="toggle-resolved" aria-expanded="${showResolved}">${showResolved ? "Ocultar resueltos" : `Mostrar resueltos (${resolved})`}</button></div>` : ""}`;
+        }</div></section>`;
+      }
+      /* Muestra solo los avisos que caben; el resto queda a un toque en «Ver todos».
+         Si ni siquiera cabe lo esencial (pantallas muy bajas), se permite desplazar. */
+      function fitHome() {
+        const list = $("#notice-rows");
+        viewport.classList.add("is-fixed");
+        if (!list) return;
+        const rows = Array.from(list.querySelectorAll(".notice-row"));
+        rows.forEach((r) => (r.hidden = false));
+        const limit = list.getBoundingClientRect().bottom;
+        let hidden = 0;
+        rows.forEach((r) => {
+          if (r.getBoundingClientRect().bottom > limit + 0.5) {
+            r.hidden = true;
+            hidden++;
+          }
+        });
+        const all = $("#all-notices"),
+          total = sortedNotices().length,
+          page = screen.firstElementChild;
+        if (page.scrollHeight > page.clientHeight + 1) {
+          rows.forEach((r) => (r.hidden = false));
+          viewport.classList.remove("is-fixed");
+          hidden = 0;
+        }
+        if (all) all.textContent = hidden ? `Ver todos (${total})` : "Ver todos";
       }
       function scheduleRows() {
         return (draft || db.shifts.filter((s) => s.date === selectedDate)).filter(
@@ -969,6 +1007,12 @@
               ? `${open ? `<form id="notice-review" data-guard><label class="field-label">Respuesta para ${esc(p.name)} (opcional)<textarea name="reply" id="notice-reply" maxlength="500" rows="2" placeholder="La verá en su aviso">${esc(n.reply || "")}</textarea></label></form>` : ""}<div class="action-row"><button class="secondary" data-action="notice-status" data-id="${n.id}" data-status="Revisado" ${n.status !== "Pendiente" ? "disabled" : ""}>Marcar revisado</button><button class="primary" data-action="notice-status" data-id="${n.id}" data-status="Resuelto" ${n.status === "Resuelto" ? "disabled" : ""}>Resolver aviso</button></div>`
               : ""
           }`;
+        } else if (m.kind === "notices") {
+          const list = sortedNotices(),
+            resolved = list.filter((n) => n.status === "Resuelto").length,
+            visible = showResolved ? list : list.filter((n) => n.status !== "Resuelto");
+          title = "Avisos";
+          body = `<div class="stack">${visible.map(noticeCard).join("") || `<p class="empty-line">${icon("check")} No hay avisos abiertos.</p>`}</div>${resolved ? `<div class="home-actions"><button class="text-button" data-action="toggle-resolved" aria-expanded="${showResolved}">${showResolved ? "Ocultar resueltos" : `Mostrar resueltos (${resolved})`}</button></div>` : ""}`;
         } else if (m.kind === "conflicts") {
           const list = upcomingConflicts();
           title = "Turnos por revisar";
@@ -1234,9 +1278,12 @@
           if (canEdit()) openModal("history");
         } else if (a === "conflicts") {
           if (canEdit()) openModal("conflicts");
+        } else if (a === "all-notices") {
+          openModal("notices");
         } else if (a === "toggle-resolved") {
           showResolved = !showResolved;
-          render(true);
+          if (modal?.kind === "notices") drawModal();
+          else render(true);
         } else if (a === "time-preset") {
           const input = b.closest("form")?.elements[b.dataset.field];
           if (!input) return;
