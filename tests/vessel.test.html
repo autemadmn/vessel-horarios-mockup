@@ -37,7 +37,7 @@
         else localStorage.setItem(STORE, typeof storage === "string" ? storage : JSON.stringify(storage));
         await new Promise((resolve) => {
           frame.onload = resolve;
-          frame.src = "../index.html?t=" + Date.now();
+          frame.src = "../index.html?intro=0&t=" + Date.now();
         });
         w = frame.contentWindow;
         /* Sin esperas de animación: las pruebas validan lógica, no tiempos. */
@@ -168,6 +168,14 @@
         eq(app("selectedDate"), "2026-11-06", "fecha nueva");
         eq(app("draft"), null, "borrador descartado");
         eq(snapshot(), before, "turnos sin cambios");
+      });
+      await test("Elegir un día en el calendario abre esa jornada", "En la 2.0 fallaba al marcar el día elegido", async () => {
+        await load();
+        click('[data-action="nav"][data-view="schedule"]');
+        click('[data-action="calendar"]');
+        click('[data-action="choose-date"][data-date="2026-11-12"]');
+        eq(app("modal"), null, "el calendario se cierra");
+        eq(app("selectedDate"), "2026-11-12", "fecha elegida");
       });
       await test("Guardar registra el historial con el tipo de cada cambio", "Historial visual de cambios", async () => {
         await load();

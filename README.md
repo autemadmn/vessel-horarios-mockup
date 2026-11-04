@@ -6,7 +6,7 @@ Mockup interactivo de una aplicación para gestionar los horarios y el equipo de
 
 ## Abrir el prototipo
 
-Descarga este repositorio y abre **index.html** en un navegador moderno. La lógica está en el HTML, los estilos en `css/` y los avatares en `assets/avatars/`. No necesita instalación, compilación ni conexión a Internet.
+Descarga este repositorio y abre **index.html** en un navegador moderno. La lógica está en el HTML, los estilos en `css/`, la intro en `js/intro.js`, el logo en `assets/brand/` y los avatares en `assets/avatars/`. No necesita instalación, compilación ni conexión a Internet.
 
 Para servirlo localmente, también puedes ejecutar desde esta carpeta:
 
@@ -29,6 +29,8 @@ Abre después `http://localhost:8000`.
 - Envío y revisión de avisos, con respuesta del encargado, sin modificar automáticamente los horarios.
 - Perfil con los próximos turnos del trabajador.
 - Inicio cabe en una pantalla sin desplazamiento (de 320 × 568 a escritorio). Diseño adaptativo de 320 px a escritorio, con desplazamiento vertical natural en el resto de secciones (Equipo y Cartera solo se paginan a partir de 20 personas) y animaciones que respetan `prefers-reduced-motion`.
+- Logo de VESSEL Club redibujado en vectorial (`assets/brand/`) y una intro de marca al abrir la app (una vez por sesión): el logo se dibuja y vuela a la cabecera de Inicio mientras se abre un círculo hacia la app. Con `?intro=1` se fuerza y con `?intro=0` se salta.
+- Microanimaciones: el total de Cartera sube desde 0 en 1 s la primera vez que se entra en cada sesión; las cifras del resumen del día y «Turnos por revisar» cambian con un tic al subir o bajar; «Guardar» pasa a «Guardado ✓» medio segundo antes de salir de la edición; deslizar el dedo en Horarios cambia de día (no mientras se edita); y el avatar viaja de la lista a la ficha y vuelve (View Transitions, donde el navegador lo admite).
 - Avatares ilustrados DiceBear (Lorelei, CC0) generados en local; una foto subida tiene prioridad.
 - Persistencia en el almacenamiento local del navegador (los datos de la iteración 04 se migran automáticamente).
 

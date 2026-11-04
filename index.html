@@ -9,11 +9,68 @@
       content="VESSEL · Prototipo interactivo de horarios, equipo y remuneraciones previstas."
     />
     <title>VESSEL · Horarios y equipo</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2317181b'/%3E%3Cpath d='M9 9l7 15 7-15' fill='none' stroke='%23f2f1f5' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+    <link rel="icon" type="image/svg+xml" href="assets/brand/favicon.svg" />
+    <!-- Intro de marca: se decide antes del primer pintado para que nunca parpadee al saltarla. -->
+    <script>
+      (function () {
+        var seen = false;
+        try { seen = sessionStorage.getItem("vessel-intro-seen") === "1"; } catch (e) {}
+        if (/[?&]intro=0(&|$)/.test(location.search)) seen = true;
+        if (/[?&]intro=(1|debug)(&|$)/.test(location.search)) seen = false;
+        document.documentElement.classList.add(seen ? "no-intro" : "intro-active");
+      })();
+    </script>
+    <style>
+      /* Estilos críticos de la intro, en línea para que el logo se dibuje en el primer pintado. */
+      .intro { display: none; }
+      .intro-active .intro { position: fixed; inset: 0; z-index: 100; display: grid; place-items: center; }
+      .intro-veil { position: absolute; inset: 0; background: #0e0f12; }
+      .intro.is-opening .intro-veil {
+        -webkit-mask: radial-gradient(circle var(--hr, 0px) at var(--hx, 50%) var(--hy, 50%), transparent calc(100% - 1.5px), #000 100%);
+        mask: radial-gradient(circle var(--hr, 0px) at var(--hx, 50%) var(--hy, 50%), transparent calc(100% - 1.5px), #000 100%);
+      }
+      .intro-logo { position: relative; width: min(58vw, 15rem); aspect-ratio: 271 / 284.6; margin-top: -6vh; }
+      .intro-logo svg { position: absolute; overflow: hidden; }
+      .intro-logo g { fill: none; stroke: #fff; stroke-width: 3.9; stroke-miterlimit: 10; }
+      .intro-emblem { left: 29.889%; top: 0; width: 39.483%; height: 44.975%; }
+      .intro-word { left: 0; top: 51.757%; width: 100%; height: 35.893%; }
+      .intro-club { left: 33.21%; top: 93.324%; width: 32.841%; height: 6.676%; }
+      /* 1. las tres V se trazan como a pulso: baja un brazo, sube el otro */
+      .intro-v { stroke-dasharray: 1; stroke-dashoffset: 1; animation: intro-draw 460ms cubic-bezier(0.33, 0, 0.2, 1) both; animation-delay: calc(40ms + var(--i, 0) * 50ms); }
+      /* 2. el pie de la copa se asienta desde el centro */
+      .intro-foot { transform-box: fill-box; transform-origin: center; transform: scaleX(0); animation: intro-grow 200ms cubic-bezier(0.215, 0.61, 0.355, 1) 470ms both; }
+      /* 3. VESSEL sube letra a letra desde su línea base */
+      .intro-word path { transform-box: fill-box; transform: translateY(104%); animation: intro-rise 360ms cubic-bezier(0.215, 0.61, 0.355, 1) both; animation-delay: calc(180ms + var(--i, 0) * 30ms); }
+      /* 4. CLUB se descubre de izquierda a derecha, como luz a lo largo de un rótulo */
+      .intro-club { clip-path: inset(-20% 100% -20% 0); animation: intro-wipe 320ms cubic-bezier(0.215, 0.61, 0.355, 1) 460ms both; }
+      .intro-rim { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+      .intro-rim circle { fill: none; stroke: #9a83d4; stroke-width: 1.5; opacity: 0; }
+      .intro-active .home-head .brand { opacity: 0; }
+      @keyframes intro-draw { to { stroke-dashoffset: 0; } }
+      @keyframes intro-grow { to { transform: none; } }
+      @keyframes intro-rise { to { transform: none; } }
+      @keyframes intro-wipe { to { clip-path: inset(-20% 0 -20% 0); } }
+      @media (prefers-reduced-motion: reduce) {
+        .intro-active .intro * { animation: none !important; }
+        .intro-v { stroke-dashoffset: 0; }
+        .intro-foot, .intro-word path { transform: none; }
+        .intro-club { clip-path: none; }
+      }
+    </style>
     <link rel="stylesheet" href="css/open-props.subset.css" />
     <link rel="stylesheet" href="css/vessel.css" />
   </head>
   <body>
+    <!-- Intro de marca (una vez por sesión). Logo: assets/brand/vessel-logo.svg, en tres capas. -->
+    <div class="intro" id="intro" aria-hidden="true">
+      <div class="intro-veil"></div>
+      <svg class="intro-rim" focusable="false"><circle cx="0" cy="0" r="0"/></svg>
+      <div class="intro-logo" id="introLogo">
+        <svg class="intro-emblem" viewBox="142 34 107 128" focusable="false"><g><path class="intro-v" pathLength="1" style="--i:0" d="M143.22 30L182 160.58L220.78 30"/><path class="intro-v" pathLength="1" style="--i:1" d="M156.72 30L195.5 160.58L234.28 30"/><path class="intro-v" pathLength="1" style="--i:2" d="M170.22 30L209 160.58L247.78 30"/><path class="intro-foot" d="M180.04 160.05H210.96"/></g></svg>
+        <svg class="intro-word" viewBox="61 181.3 271 102.15" focusable="false"><g><path style="--i:0" d="M63.6 179.3L81.2 282.25L97.2 179.3"/><path style="--i:1" d="M144.55 183.25H119.6V281.5H146.45M119.6 225.75H142.55"/><path style="--i:2" d="M183.6 200.25V193.75C183.6 187.24 179.61 183.25 173.1 183.25C166.59 183.25 162.6 187.24 162.6 193.75V207.25C162.6 224.25 183.6 236.5 183.6 253.5V271C183.6 277.51 179.61 281.5 173.1 281.5C166.59 281.5 162.6 277.51 162.6 271V254"/><path style="--i:3" d="M230.6 200.25V193.75C230.6 187.24 226.61 183.25 220.1 183.25C213.59 183.25 209.6 187.24 209.6 193.75V207.25C209.6 224.25 230.6 236.5 230.6 253.5V271C230.6 277.51 226.61 281.5 220.1 281.5C213.59 281.5 209.6 277.51 209.6 271V254"/><path style="--i:4" d="M280.55 183.25H255.6V281.5H282.55M255.6 225.75H278.55"/><path style="--i:5" d="M303.6 181.3V281.5H331.55"/></g></svg>
+        <svg class="intro-club" viewBox="151 299.6 89 19" focusable="false"><g><path d="M165.07 304.05A6.55 7.55 0 1 0 165.07 314.15"/><path d="M179.65 299.6V316.65H190.6"/><path d="M201.3 299.6V310.45A5.6 6.2 0 0 0 212.5 310.45V299.6"/><path d="M226.7 301.55H232.4A3.95 3.47 0 0 1 232.4 308.5H226.7M226.7 308.5H232.9A4.6 4.08 0 0 1 232.9 316.65H226.7M226.7 299.6V318.6"/></g></svg>
+      </div>
+    </div>
     <div class="app" id="app">
       <main class="viewport" id="viewport" tabindex="-1"><div id="screen"></div></main>
       <nav class="dock" id="nav" aria-label="Navegación principal"></nav>
@@ -291,7 +348,10 @@
       let lastView = null,
         lastDate = null,
         enterIds = new Set(),
-        walletFrom = null;
+        walletFrom = null,
+        tickMemory = new Map(),
+        skipEnter = false,
+        teamScroll = 0;
       const screen = $("#screen"),
         viewport = $("#viewport"),
         modalRoot = $("#modal-root");
@@ -540,23 +600,48 @@
         if (view === "home") fitHome();
         else viewport.classList.remove("is-fixed");
         /* Transiciones breves: cambio de sección, cambio de día y elementos recién añadidos. */
-        if (lastView !== null && view !== lastView) screen.firstElementChild.classList.add("page-enter");
+        if (lastView !== null && view !== lastView && !skipEnter) screen.firstElementChild.classList.add("page-enter");
         else if (view === "schedule" && lastDate && selectedDate !== lastDate)
           $(".day-body")?.classList.add(selectedDate > lastDate ? "day-next" : "day-prev");
         enterIds.forEach((id) => $(`[data-shift="${id}"]`)?.classList.add("item-enter"));
         enterIds.clear();
+        tickNumbers();
         if (view === "wallet" && walletFrom !== null) countUp($("#wallet-total"), walletFrom, stats().money);
+        else if (view === "wallet" && lastView !== "wallet") firstWalletCount();
         walletFrom = null;
         lastView = view;
         lastDate = selectedDate;
       }
-      /* Las cifras se animan solo al cambiar de periodo; el valor final siempre es el exacto. */
-      function countUp(el, from, to) {
+      /* Cifras con «tic»: si un contador cambia respecto a la última vez que se mostró en el mismo
+         contexto (data-tick), entra deslizándose hacia arriba si sube y hacia abajo si baja. */
+      function tickNumbers() {
+        const num = (s) => parseFloat(s.replace(/\./g, "").replace(",", "."));
+        $$("[data-tick]").forEach((el) => {
+          const key = el.dataset.tick,
+            value = el.textContent,
+            prev = tickMemory.get(key);
+          tickMemory.set(key, value);
+          if (prev === undefined || prev === value || !motionOK()) return;
+          el.classList.add(num(value) > num(prev) ? "tick-up" : "tick-down");
+        });
+      }
+      /* La primera vez que se entra en Cartera en cada sesión, el total sube desde 0 en un segundo. */
+      function firstWalletCount() {
+        const el = $("#wallet-total");
+        if (!el || !motionOK()) return;
+        try {
+          if (sessionStorage.getItem("vessel-wallet-counted") === "1") return;
+          sessionStorage.setItem("vessel-wallet-counted", "1");
+        } catch (e) {}
+        countUp(el, 0, stats().money, 1000);
+      }
+      /* Las cifras suben al cambiar de periodo y al entrar por primera vez; el valor final siempre es el exacto. */
+      function countUp(el, from, to, dur = 320) {
         if (!el || from === to || !motionOK()) return;
-        const t0 = performance.now(),
-          dur = 320;
+        const t0 = performance.now();
+        el.textContent = euro(from);
         const step = (t) => {
-          const k = Math.min(1, (t - t0) / dur),
+          const k = Math.min(1, Math.max(0, (t - t0) / dur)),
             e = 1 - Math.pow(1 - k, 3);
           el.textContent = euro(k < 1 ? Math.round(from + (to - from) * e) : to);
           if (k < 1 && el.isConnected) requestAnimationFrame(step);
@@ -594,6 +679,9 @@
         const p = employee(n.employeeId);
         return `<button class="notice-card ${n.status === "Resuelto" ? "is-resolved" : ""}" data-action="notice" data-id="${n.id}">${avatar(p)}<span class="person-text"><span class="person-name">${esc(p.name)}</span><span class="notice-message">${esc(n.message)}</span><span class="notice-meta">${noticeStatus(n)}<span>${esc(n.reason)} · ${dayLabel(n.date)}</span></span></span>${icon("chevron", "chev")}</button>`;
       }
+      /* Logo VESSEL (assets/brand/vessel-logo.svg): emblema y palabra, mismas medidas que la intro. */
+      const BRAND_EMBLEM = `<svg class="brand-emblem" viewBox="142 34 107 128" aria-hidden="true" focusable="false"><g><path d="M143.22 30L182 160.58L220.78 30"/><path d="M156.72 30L195.5 160.58L234.28 30"/><path d="M170.22 30L209 160.58L247.78 30"/><path d="M180.04 160.05H210.96"/></g></svg>`,
+        BRAND_WORD = `<svg class="brand-word" viewBox="61 181.3 271 102.15" aria-hidden="true" focusable="false"><g><path d="M63.6 179.3L81.2 282.25L97.2 179.3"/><path d="M144.55 183.25H119.6V281.5H146.45M119.6 225.75H142.55"/><path d="M183.6 200.25V193.75C183.6 187.24 179.61 183.25 173.1 183.25C166.59 183.25 162.6 187.24 162.6 193.75V207.25C162.6 224.25 183.6 236.5 183.6 253.5V271C183.6 277.51 179.61 281.5 173.1 281.5C166.59 281.5 162.6 277.51 162.6 271V254"/><path d="M230.6 200.25V193.75C230.6 187.24 226.61 183.25 220.1 183.25C213.59 183.25 209.6 187.24 209.6 193.75V207.25C209.6 224.25 230.6 236.5 230.6 253.5V271C230.6 277.51 226.61 281.5 220.1 281.5C213.59 281.5 209.6 277.51 209.6 271V254"/><path d="M280.55 183.25H255.6V281.5H282.55M255.6 225.75H278.55"/><path d="M303.6 181.3V281.5H331.55"/></g></svg>`;
       /* Inicio cabe en una pantalla: el encargado ve quién entra y a qué hora; el trabajador, su turno. */
       function homeView() {
         const worker = sessionRole === "worker",
@@ -628,9 +716,9 @@
           : `<section class="hero"><p class="eyebrow">${worker ? "Tus turnos" : "Próxima jornada"}</p><h2 class="hero-date">Sin jornadas programadas</h2><p class="hero-sub">${canEdit() ? "Planifica una fecha desde Horarios." : "Cuando te asignen un turno aparecerá aquí."}</p><button class="primary block" data-action="nav" data-view="schedule">${icon("schedule")} Ir a Horarios</button></section>`;
         const hoursTile = `<button class="tile" data-action="nav" data-view="${canMoney() ? "wallet" : "profile"}"><strong class="tile-value">${fmt(total.total)} h</strong><span class="tile-label">${worker ? "Tus horas del mes" : "Horas del mes"}</span></button>`,
           conflictTile = conflicts.length
-            ? `<button class="tile" data-action="conflicts"><strong class="tile-value">${conflicts.length}</strong><span class="tile-label">${conflicts.length === 1 ? "Turno por revisar" : "Turnos por revisar"}</span></button>`
+            ? `<button class="tile" data-action="conflicts"><strong class="tile-value" data-tick="conflicts-${sessionRole}">${conflicts.length}</strong><span class="tile-label">${conflicts.length === 1 ? "Turno por revisar" : "Turnos por revisar"}</span></button>`
             : "";
-        return `<header class="home-head"><div><svg class="wordmark" viewBox="0 0 191 40" role="img" aria-label="VESSEL"><text x="4" y="31">VESSEL</text><text x="4" y="31" style="stroke-width:.35;fill:#1a1b1e;transform:translate(.25px,.25px) scale(.99);transform-origin:center">VESSEL</text></svg><p class="home-date">${dayLabel(DEMO_DAY, true)} · <span>${esc(sessionRole === "worker" ? "Alejandro" : ROLE_LABEL[sessionRole])}</span></p></div><button class="icon-button home-options" data-action="session" aria-label="Opciones del prototipo">${icon("settings")}</button></header>
+        return `<header class="home-head"><div><p class="brand" role="img" aria-label="VESSEL">${BRAND_EMBLEM}${BRAND_WORD}</p><p class="home-date">${dayLabel(DEMO_DAY, true)} · <span>${esc(sessionRole === "worker" ? "Alejandro" : ROLE_LABEL[sessionRole])}</span></p></div><button class="icon-button home-options" data-action="session" aria-label="Opciones del prototipo">${icon("settings")}</button></header>
         ${hero}
         <div class="tiles ${conflictTile ? "" : "single"}">${conflictTile}${hoursTile}</div>
         <section class="home-notices" aria-labelledby="notices-title"><div class="section-heading"><h2 id="notices-title">Avisos${pending ? ` <span class="heading-count">${pending} ${pending === 1 ? "pendiente" : "pendientes"}</span>` : ""}</h2><button class="text-button" data-action="all-notices" id="all-notices">Ver todos</button></div>
@@ -693,7 +781,7 @@
         return `<header class="page-head"><div><h1>Horarios</h1><p class="subtitle">${draft ? "Editando la jornada" : worker ? "Tus turnos" : "Quién trabaja y a qué hora"}</p></div>${canEdit() && !draft ? `<button class="secondary" data-action="edit-day">${icon("edit")} Editar</button>` : ""}</header>
         <div class="date-row"><button class="icon-button date-step" data-action="day-step" data-step="-1" aria-label="Día anterior">${icon("left")}</button><button class="date-control" data-action="calendar" aria-label="Cambiar fecha. ${dayLabel(selectedDate, true)}">${icon("calendar")}<span>${dayLabel(selectedDate)}</span>${icon("down", "caret")}</button><button class="icon-button date-step" data-action="day-step" data-step="1" aria-label="Día siguiente">${icon("chevron")}</button>${selectedDate !== DEMO_DAY ? `<button class="text-button today-link" data-action="day-today">Hoy</button>` : ""}</div>
         <div class="day-body">
-        <div class="summary-strip"><div class="summary-item"><span class="summary-value">${active}</span><span class="summary-label">Empleados</span></div><div class="summary-item"><span class="summary-value" id="day-count">${rows.length}</span><span class="summary-label">${worker ? "Tus turnos" : "Turnos"}</span></div><div class="summary-item"><span class="summary-value" id="day-hours">${fmt(hours)} h</span><span class="summary-label">Horas previstas</span></div></div>
+        <div class="summary-strip"><div class="summary-item"><span class="summary-value">${active}</span><span class="summary-label">Empleados</span></div><div class="summary-item"><span class="summary-value" id="day-count" data-tick="count-${sessionRole}-${selectedDate}">${rows.length}</span><span class="summary-label">${worker ? "Tus turnos" : "Turnos"}</span></div><div class="summary-item"><span class="summary-value" id="day-hours" data-tick="hours-${sessionRole}-${selectedDate}">${fmt(hours)} h</span><span class="summary-label">Horas previstas</span></div></div>
         ${
           draft
             ? `<div class="draft-bar" role="status"><span class="draft-state"><i aria-hidden="true"></i>${changes ? `Borrador · ${changes} ${changes === 1 ? "cambio sin guardar" : "cambios sin guardar"}` : "Toca un turno para cambiar sus horas"}</span></div>`
@@ -916,8 +1004,22 @@
           })
         ) {
           draft = null;
-          render(true);
-          showToast(`Jornada guardada · ${changes.length} ${changes.length === 1 ? "cambio" : "cambios"}. Horas e importes actualizados.`);
+          const message = `Jornada guardada · ${changes.length} ${changes.length === 1 ? "cambio" : "cambios"}. Horas e importes actualizados.`,
+            button = $('.draft-footer [data-action="save-day"]'),
+            page = screen.firstElementChild;
+          /* Ya está guardado: el botón lo confirma medio segundo antes de salir de la edición. */
+          if (!button || !motionOK()) {
+            render(true);
+            return showToast(message);
+          }
+          button.closest(".draft-footer").classList.add("is-saving");
+          button.classList.add("is-saved");
+          button.innerHTML = `<svg class="icon saved-check" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path pathLength="1" d="M20 6 9 17l-5-5"/></svg> Guardado`;
+          setTimeout(() => {
+            /* Si entretanto se ha cambiado de sección, esa vista ya está dibujada. */
+            if (screen.firstElementChild === page) render(true);
+            showToast(message);
+          }, 500);
         }
       }
       function openModal(kind, data = {}) {
@@ -1207,6 +1309,60 @@
             : undefined,
         );
       }
+      /* El avatar viaja y cambia de tamaño entre la fila y la ficha (View Transitions).
+         Sin soporte del navegador o con «reducir movimiento», el cambio de pantalla es el de siempre. */
+      function morphAvatar(from, update, findTarget) {
+        if (!document.startViewTransition || !motionOK() || !from || !visible(from)) return update();
+        let to = null;
+        from.style.viewTransitionName = "vessel-avatar";
+        const vt = document.startViewTransition(() => {
+          from.style.viewTransitionName = "";
+          skipEnter = true;
+          try {
+            update();
+          } finally {
+            skipEnter = false;
+          }
+          to = findTarget();
+          if (to && visible(to)) to.style.viewTransitionName = "vessel-avatar";
+        });
+        vt.finished.finally(() => to && (to.style.viewTransitionName = ""));
+      }
+      /* Solo viaja si el avatar se ve dentro de la pantalla de la app. */
+      function visible(el) {
+        const r = el.getBoundingClientRect(),
+          v = viewport.getBoundingClientRect();
+        return r.width > 0 && r.bottom > v.top && r.top < v.bottom;
+      }
+      /* Deslizar el dedo sobre Horarios cambia de día, como las flechas. En edición se desactiva
+         para no cambiar de jornada por accidente; los bordes se dejan a los gestos del sistema. */
+      let swipe = null;
+      viewport.addEventListener(
+        "touchstart",
+        (e) => {
+          swipe = null;
+          if (view !== "schedule" || draft || modal || e.touches.length !== 1 || !e.target.closest(".page-schedule")) return;
+          const t = e.touches[0];
+          if (t.clientX < 24 || t.clientX > innerWidth - 24) return;
+          swipe = { x: t.clientX, y: t.clientY, at: e.timeStamp };
+        },
+        { passive: true },
+      );
+      viewport.addEventListener(
+        "touchend",
+        (e) => {
+          const s = swipe;
+          swipe = null;
+          if (!s || view !== "schedule" || draft || modal) return;
+          const t = e.changedTouches[0],
+            dx = t.clientX - s.x,
+            dy = t.clientY - s.y;
+          if (Math.abs(dx) < 60 || Math.abs(dx) < Math.abs(dy) * 1.8 || e.timeStamp - s.at > 700) return;
+          changeDay(addDay(selectedDate, dx < 0 ? 1 : -1));
+        },
+        { passive: true },
+      );
+      viewport.addEventListener("touchcancel", () => (swipe = null), { passive: true });
       /* Cambiar de jornada nunca debe dejar un borrador asociado a otra fecha. */
       function changeDay(date) {
         if (draft && date !== selectedDate) {
@@ -1254,7 +1410,7 @@
           /* El día elegido se marca un instante antes de cerrar, para que se perciba la selección. */
           if (modal.choosing) return;
           modal.choosing = true;
-          $(".calendar-day.selected").forEach((x) => x.classList.remove("selected"));
+          $$(".calendar-day.selected").forEach((x) => x.classList.remove("selected"));
           b.classList.add("selected");
           const date = b.dataset.date;
           later(130, () => {
@@ -1369,13 +1525,21 @@
           render(true);
         } else if (a === "person") {
           if (!employee(b.dataset.id)) return;
-          selectedEmployee = b.dataset.id;
-          view = "detail";
-          render();
+          const id = b.dataset.id;
+          teamScroll = view === "team" ? viewport.scrollTop : 0;
+          morphAvatar(b.querySelector(".avatar"), () => {
+            selectedEmployee = id;
+            view = "detail";
+            render();
+          }, () => $(".identity .avatar"));
         } else if (a === "back-team") {
-          view = "team";
-          selectedEmployee = null;
-          render();
+          const id = selectedEmployee;
+          morphAvatar($(".identity .avatar"), () => {
+            view = "team";
+            selectedEmployee = null;
+            render();
+            viewport.scrollTop = teamScroll;
+          }, () => $(`#team-list [data-id="${id}"] .avatar`));
         } else if (a === "edit-person") {
           if (!requireAdmin()) return;
           openModal("person-form", { employeeId: b.dataset.id });
@@ -1702,6 +1866,9 @@
         }
       });
       render();
+      document.documentElement.dataset.ready = "true";
+      window.VesselIntro?.ready();
     </script>
+    <script src="js/intro.js" defer></script>
   </body>
 </html>

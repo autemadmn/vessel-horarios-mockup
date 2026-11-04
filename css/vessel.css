@@ -1110,22 +1110,31 @@ input[type="checkbox"] {
   gap: var(--v-s3);
   padding-bottom: 14px;
 }
-.wordmark {
-  display: block;
-  width: 146px;
-  height: 31px;
-  margin: 0 0 4px -2px;
-  overflow: visible;
+/* Logo en la cabecera: emblema + palabra, trazos finos del logo original. */
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin: 0 0 6px;
 }
-.wordmark text {
-  font-family: Arial, Helvetica, sans-serif;
-  font-size: 31px;
-  font-weight: 800;
-  letter-spacing: 6px;
+.brand svg {
+  display: block;
+  flex: none;
+  overflow: hidden;
+}
+.brand g {
   fill: none;
   stroke: var(--v-text);
-  stroke-width: 1.05;
-  paint-order: stroke;
+  stroke-width: 3.9;
+  stroke-miterlimit: 10;
+}
+.brand-emblem {
+  width: 26.75px;
+  height: 32px;
+}
+.brand-word {
+  width: 63.7px;
+  height: 24px;
 }
 .home-date {
   font-size: var(--v-fs-sm);
@@ -2428,6 +2437,55 @@ button.shift-card:active,
 .day-prev {
   animation: day-prev 180ms var(--v-ease-out) both;
 }
+/* Contadores con «tic»: la cifra nueva entra desde abajo si sube y desde arriba si baja. */
+@keyframes tick-up {
+  from {
+    opacity: 0;
+    transform: translateY(0.45em);
+  }
+}
+@keyframes tick-down {
+  from {
+    opacity: 0;
+    transform: translateY(-0.45em);
+  }
+}
+.tick-up {
+  animation: tick-up 200ms var(--v-ease-out) both;
+}
+.tick-down {
+  animation: tick-down 200ms var(--v-ease-out) both;
+}
+/* Guardar → Guardado: la marca se dibuja y el pie no admite más toques mientras sale de la edición. */
+@keyframes draw-check {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.saved-check path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: draw-check 260ms var(--v-ease-out) 40ms forwards;
+}
+.draft-footer.is-saving {
+  pointer-events: none;
+}
+/* En Horarios, deslizar en horizontal cambia de día: el navegador solo gestiona el desplazamiento
+   vertical y el zoom, para que no lo tome como «página anterior». */
+.page-schedule {
+  touch-action: pan-y pinch-zoom;
+}
+/* Avatar compartido entre la fila y la ficha; el resto de la pantalla solo funde. */
+::view-transition-group(vessel-avatar) {
+  animation-duration: 340ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+::view-transition-old(root) {
+  animation: fade-out 140ms var(--v-ease-in) both;
+}
+::view-transition-new(root) {
+  animation: fade-in 220ms var(--v-ease-out) 60ms both;
+}
 .item-enter {
   animation: item-in var(--v-dur-med) var(--v-ease-out) both;
 }
@@ -2618,10 +2676,17 @@ button.shift-card:active,
   .home-head {
     padding-bottom: 10px;
   }
-  .home-head .wordmark {
-    width: 116px;
-    height: 25px;
-    margin-bottom: 2px;
+  .home-head .brand {
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .home-head .brand-emblem {
+    width: 21.7px;
+    height: 26px;
+  }
+  .home-head .brand-word {
+    width: 53.1px;
+    height: 20px;
   }
   .page-home .hero {
     padding: 12px 14px 14px;
@@ -2675,7 +2740,7 @@ button.shift-card:active,
   }
 }
 @media (max-height: 600px) {
-  .home-head .wordmark {
+  .home-head .brand {
     display: none;
   }
   .home-date {
